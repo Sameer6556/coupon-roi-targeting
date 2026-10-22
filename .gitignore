@@ -1,0 +1,26 @@
+# data and local builds (everything here is rebuilt by `couponroi all`)
+data/
+mlruns/
+mlflow.db
+artifacts/models/
+artifacts/*.duckdb
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+build/
+dist/
+
+# secrets
+.env
+.streamlit/secrets.toml
+
+# os
+.DS_Store
+Thumbs.db

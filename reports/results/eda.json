@@ -1,0 +1,157 @@
+{
+  "growth_segments": {
+    "counts": {
+      "growing": 805,
+      "stable": 856,
+      "declining": 725,
+      "new": 79
+    },
+    "declining_top_departments": [
+      {
+        "department": "GROCERY",
+        "change_weekly_per_hh": -8.99
+      },
+      {
+        "department": "DRUG GM",
+        "change_weekly_per_hh": -2.46
+      },
+      {
+        "department": "MEAT",
+        "change_weekly_per_hh": -1.53
+      },
+      {
+        "department": "PRODUCE",
+        "change_weekly_per_hh": -1.2
+      },
+      {
+        "department": "MEAT-PCKGD",
+        "change_weekly_per_hh": -1.16
+      },
+      {
+        "department": "DELI",
+        "change_weekly_per_hh": -0.63
+      },
+      {
+        "department": "MISCELLANEOUS",
+        "change_weekly_per_hh": -0.37
+      },
+      {
+        "department": "SEAFOOD-PCKGD",
+        "change_weekly_per_hh": -0.36
+      }
+    ],
+    "sentence": "805 households grew their weekly spend by 25%+ in the second half of the year and 725 cut it by 25%+; decliners pulled back most in Grocery (-8.99 $/week per household)."
+  },
+  "cohort_retention": {
+    "cohort_sizes": {
+      "first shopped wk 1-4": 1868,
+      "wk 5-8": 256,
+      "wk 9-12": 118,
+      "wk 13-16": 70
+    },
+    "main_cohort_retention_block6": 0.897,
+    "main_cohort_retention_last": 0.881,
+    "sentence": "Of households that first shopped in weeks 1-4, 90% still shopped six 4-week blocks later and 88% in the final block, so outright churn is rare in this panel; the real risk is households quietly spending less."
+  },
+  "revenue_concentration": {
+    "top10_share": 0.345,
+    "top20_share": 0.539,
+    "gini": 0.519,
+    "decile_median_spend": {
+      "1": 5292.0,
+      "2": 3290.0,
+      "3": 2361.0,
+      "4": 1759.0,
+      "5": 1322.0,
+      "6": 979.0,
+      "7": 695.0,
+      "8": 446.0,
+      "9": 253.0,
+      "10": 80.0
+    },
+    "sentence": "The top 20% of households bring in 54% of spend (top 10%: 35%)."
+  },
+  "targeting_bias": {
+    "pre_spend": [
+      {
+        "campaign_id": 27,
+        "non-recipients": 37.83,
+        "recipients": 52.74
+      },
+      {
+        "campaign_id": 8,
+        "non-recipients": 21.93,
+        "recipients": 52.68
+      },
+      {
+        "campaign_id": 13,
+        "non-recipients": 20.79,
+        "recipients": 53.26
+      },
+      {
+        "campaign_id": 18,
+        "non-recipients": 20.64,
+        "recipients": 51.28
+      }
+    ],
+    "ratio_mean": 2.21,
+    "sentence": "Before any booklet arrived, recipients already spent 1.4-2.6x more per week than non-recipients, so any naive 'recipients spend more' comparison is mostly targeting bias."
+  },
+  "redemption": {
+    "by_type": [
+      {
+        "campaign_type": "Type A",
+        "campaigns": 4,
+        "households_targeted": 3647.0,
+        "redeeming_households": 604.0,
+        "redemptions": 1718.0,
+        "household_redemption_rate": 0.1656,
+        "redemptions_per_100_targeted": 47.1072
+      },
+      {
+        "campaign_type": "Type B",
+        "campaigns": 17,
+        "households_targeted": 2368.0,
+        "redeeming_households": 154.0,
+        "redemptions": 323.0,
+        "household_redemption_rate": 0.065,
+        "redemptions_per_100_targeted": 13.6402
+      },
+      {
+        "campaign_type": "Type C",
+        "campaigns": 6,
+        "households_targeted": 574.0,
+        "redeeming_households": 34.0,
+        "redemptions": 61.0,
+        "household_redemption_rate": 0.0592,
+        "redemptions_per_100_targeted": 10.6272
+      }
+    ],
+    "redeeming_households": 410,
+    "top10_redeemers_share": 0.361,
+    "sentence": "Only 17% of Type A recipients redeemed anything (Type B: 7%), and the top 10% of redeemers made 36% of all redemptions."
+  },
+  "demographics_coverage": {
+    "table": [
+      {
+        "has_demographics": true,
+        "households": 801,
+        "median_weekly_spend": 45.816,
+        "avg_active_weeks": 40.829,
+        "avg_campaigns_received": 4.788,
+        "share_got_type_a": 0.923,
+        "share_of_revenue": 0.566
+      },
+      {
+        "has_demographics": false,
+        "households": 1668,
+        "median_weekly_spend": 13.02,
+        "avg_active_weeks": 22.164,
+        "avg_campaigns_received": 1.651,
+        "share_got_type_a": 0.45,
+        "share_of_revenue": 0.434
+      }
+    ],
+    "sentence": "The 801 households with demographics (32% of the panel) bring 57% of revenue and have 3.5x the median weekly spend, so demographic findings describe heavy shoppers, not everyone."
+  }
+}

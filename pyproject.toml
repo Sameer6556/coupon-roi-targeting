@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "couponroi"
+version = "1.0.0"
+description = "Causal campaign measurement and uplift-based coupon targeting on The Complete Journey grocery data"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Sameer Singh" }]
+dependencies = [
+    "completejourney_py>=0.1.0",
+    "duckdb>=1.1",
+    "pandas>=2.1",
+    "numpy>=1.26",
+    "pyarrow>=14",
+    "scikit-learn>=1.4",
+    "lightgbm>=4.3",
+    "statsmodels>=0.14",
+    "scipy>=1.11",
+    "matplotlib>=3.8",
+    "shap>=0.45",
+    "joblib>=1.3",
+    "sqlglot>=25",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+tracking = ["mlflow>=2.12"]
+app = ["streamlit>=1.36", "plotly>=5.20"]
+api = ["fastapi>=0.110", "uvicorn>=0.29", "pydantic>=2.6"]
+dev = [
+    "couponroi[tracking,app,api]",
+    "pytest>=8",
+    "ruff>=0.5",
+    "nbformat>=5.9",
+    "nbconvert>=7.16",
+    "ipykernel>=6.29",
+    "jupytext>=1.16",
+]
+
+[project.scripts]
+couponroi = "couponroi.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501", "B008", "SIM108"]

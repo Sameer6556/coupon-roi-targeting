@@ -92,15 +92,17 @@ class CausalConfig:
 class ChurnConfig:
     """Settings for the lapse-risk model.
 
-    Grocery shoppers rarely churn outright; they quietly move part of their basket
-    to another store. So the target is a household's spend over the next
-    `horizon` weeks falling below `drop_threshold` of its own recent run rate.
+    Population: regular shoppers (shopped in at least `min_regular` of the last
+    `lookback` weeks). Target: they shop in at most `quiet_max` of the next `horizon`
+    weeks. A regular going quiet is a real change in behaviour. (Tried first: "spend
+    halves" over all active households. It is mostly noise, AUC ~0.70; see docs.)
     """
 
     lookback: int = 16
     horizon: int = 8
-    drop_threshold: float = 0.5
-    min_active_weeks_recent: int = 1  # must have shopped in the last 8 weeks to be scored
+    min_regular: int = 8  # shopped in >= 8 of the last 16 weeks
+    quiet_max: int = 2  # ...and then in <= 2 of the next 8 weeks
+    drop_threshold: float = 0.5  # secondary label: spend over the next 8 weeks < 50% of baseline
     first_cutoff: int = 17  # need `lookback` weeks of history (weeks 2..17)
     last_label_week: int = 53
     cutoff_step: int = 2

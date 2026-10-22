@@ -1,0 +1,212 @@
+{
+  "assumptions": {
+    "gross_margin": 0.28,
+    "cost_per_booklet": 1.5,
+    "campaign_weeks": 7.25,
+    "note": "simulated: the data has no margins or costs"
+  },
+  "eligible_households": 2227,
+  "budget_share_compared": 0.45,
+  "profit_at_budget": {
+    "uplift model": 6559.294076361902,
+    "heaviest shoppers (current rule)": 1050.9728351528809,
+    "highest lapse risk": 1535.7401352186919,
+    "random": 85.57876387957822
+  },
+  "profit_mail_everyone": 1055.9747763147743,
+  "optimal_mail_count": 1057,
+  "optimal_mail_share": 0.4746295464750786,
+  "profit_at_optimum": 6569.679808771921,
+  "profit_at_optimum_ci": [
+    2661.2115984704596,
+    10478.148019073367
+  ],
+  "holdout_profit_per_1000_at_30pct": {
+    "uplift model": 1982.907386375456,
+    "heaviest shoppers (current rule)": 113.42306500260123,
+    "random": -307.39177275090987
+  },
+  "holdout_profit_per_1000_all": {
+    "uplift model": -758.3916939677557,
+    "heaviest shoppers (current rule)": -758.3916939677575,
+    "random": -758.3916939677591
+  },
+  "sensitivity": [
+    {
+      "margin": 0.2,
+      "cost": 0.5,
+      "share_to_mail": 0.5321,
+      "profit_per_1000_eligible": 2393.8564,
+      "profit_if_mail_all_per_1000": 910.1208
+    },
+    {
+      "margin": 0.2,
+      "cost": 1.0,
+      "share_to_mail": 0.4791,
+      "profit_per_1000_eligible": 2141.1458,
+      "profit_if_mail_all_per_1000": 410.1208
+    },
+    {
+      "margin": 0.2,
+      "cost": 1.5,
+      "share_to_mail": 0.4387,
+      "profit_per_1000_eligible": 1911.6616,
+      "profit_if_mail_all_per_1000": -89.8792
+    },
+    {
+      "margin": 0.2,
+      "cost": 2.0,
+      "share_to_mail": 0.3911,
+      "profit_per_1000_eligible": 1704.8893,
+      "profit_if_mail_all_per_1000": -589.8792
+    },
+    {
+      "margin": 0.2,
+      "cost": 3.0,
+      "share_to_mail": 0.3103,
+      "profit_per_1000_eligible": 1356.4918,
+      "profit_if_mail_all_per_1000": -1589.8792
+    },
+    {
+      "margin": 0.25,
+      "cost": 0.5,
+      "share_to_mail": 0.5429,
+      "profit_per_1000_eligible": 3059.6167,
+      "profit_if_mail_all_per_1000": 1262.6511
+    },
+    {
+      "margin": 0.25,
+      "cost": 1.0,
+      "share_to_mail": 0.4993,
+      "profit_per_1000_eligible": 2798.772,
+      "profit_if_mail_all_per_1000": 762.6511
+    },
+    {
+      "margin": 0.25,
+      "cost": 1.5,
+      "share_to_mail": 0.4612,
+      "profit_per_1000_eligible": 2558.6387,
+      "profit_if_mail_all_per_1000": 262.6511
+    },
+    {
+      "margin": 0.25,
+      "cost": 2.0,
+      "share_to_mail": 0.427,
+      "profit_per_1000_eligible": 2335.5808,
+      "profit_if_mail_all_per_1000": -237.3489
+    },
+    {
+      "margin": 0.25,
+      "cost": 3.0,
+      "share_to_mail": 0.3529,
+      "profit_per_1000_eligible": 1944.5311,
+      "profit_if_mail_all_per_1000": -1237.3489
+    },
+    {
+      "margin": 0.28,
+      "cost": 0.5,
+      "share_to_mail": 0.5469,
+      "profit_per_1000_eligible": 3459.4568,
+      "profit_if_mail_all_per_1000": 1474.1692
+    },
+    {
+      "margin": 0.28,
+      "cost": 1.0,
+      "share_to_mail": 0.5106,
+      "profit_per_1000_eligible": 3195.0874,
+      "profit_if_mail_all_per_1000": 974.1692
+    },
+    {
+      "margin": 0.28,
+      "cost": 1.5,
+      "share_to_mail": 0.4746,
+      "profit_per_1000_eligible": 2950.0134,
+      "profit_if_mail_all_per_1000": 474.1692
+    },
+    {
+      "margin": 0.28,
+      "cost": 2.0,
+      "share_to_mail": 0.4445,
+      "profit_per_1000_eligible": 2720.5252,
+      "profit_if_mail_all_per_1000": -25.8308
+    },
+    {
+      "margin": 0.28,
+      "cost": 3.0,
+      "share_to_mail": 0.3799,
+      "profit_per_1000_eligible": 2309.7524,
+      "profit_if_mail_all_per_1000": -1025.8308
+    },
+    {
+      "margin": 0.3,
+      "cost": 0.5,
+      "share_to_mail": 0.5478,
+      "profit_per_1000_eligible": 3726.1171,
+      "profit_if_mail_all_per_1000": 1615.1813
+    },
+    {
+      "margin": 0.3,
+      "cost": 1.0,
+      "share_to_mail": 0.5137,
+      "profit_per_1000_eligible": 3459.8696,
+      "profit_if_mail_all_per_1000": 1115.1813
+    },
+    {
+      "margin": 0.3,
+      "cost": 1.5,
+      "share_to_mail": 0.4791,
+      "profit_per_1000_eligible": 3211.7188,
+      "profit_if_mail_all_per_1000": 615.1813
+    },
+    {
+      "margin": 0.3,
+      "cost": 2.0,
+      "share_to_mail": 0.4517,
+      "profit_per_1000_eligible": 2978.99,
+      "profit_if_mail_all_per_1000": 115.1813
+    },
+    {
+      "margin": 0.3,
+      "cost": 3.0,
+      "share_to_mail": 0.3911,
+      "profit_per_1000_eligible": 2557.334,
+      "profit_if_mail_all_per_1000": -884.8187
+    },
+    {
+      "margin": 0.35,
+      "cost": 0.5,
+      "share_to_mail": 0.5555,
+      "profit_per_1000_eligible": 4393.2264,
+      "profit_if_mail_all_per_1000": 1967.7115
+    },
+    {
+      "margin": 0.35,
+      "cost": 1.0,
+      "share_to_mail": 0.5249,
+      "profit_per_1000_eligible": 4123.2303,
+      "profit_if_mail_all_per_1000": 1467.7115
+    },
+    {
+      "margin": 0.35,
+      "cost": 1.5,
+      "share_to_mail": 0.4935,
+      "profit_per_1000_eligible": 3868.5988,
+      "profit_if_mail_all_per_1000": 967.7115
+    },
+    {
+      "margin": 0.35,
+      "cost": 2.0,
+      "share_to_mail": 0.4679,
+      "profit_per_1000_eligible": 3628.555,
+      "profit_if_mail_all_per_1000": 467.7115
+    },
+    {
+      "margin": 0.35,
+      "cost": 3.0,
+      "share_to_mail": 0.4185,
+      "profit_per_1000_eligible": 3185.3494,
+      "profit_if_mail_all_per_1000": -532.2885
+    }
+  ],
+  "headline": "Simulated: at the current budget (45% of active households) the uplift ranking is worth $6.6K vs $1.1K for the heaviest-shopper rule and $86 at random. Mailing only the 1,057 households with positive expected profit (47%) gives $6.6K (range $2.7K to $10.5K across the effect's 95% CI). Best ranking at budget: uplift model."
+}

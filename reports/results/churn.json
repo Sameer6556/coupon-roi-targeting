@@ -1,0 +1,408 @@
+{
+  "target": "shops in <= 2 of the next 8 weeks",
+  "population": "shopped in >= 8 of the last 16 weeks",
+  "n_rows": 21181,
+  "cutoffs": [
+    17,
+    19,
+    21,
+    23,
+    25,
+    27,
+    29,
+    31,
+    33,
+    35,
+    37,
+    39,
+    41,
+    43,
+    45
+  ],
+  "test_cutoffs": [
+    37,
+    41,
+    45
+  ],
+  "base_rate": 0.07133751947500118,
+  "full_lapse_rate": 0.010150606675794344,
+  "spend_halved_rate": 0.15858552476275908,
+  "folds": [
+    {
+      "test_cutoff": 37,
+      "model": "rule: recent spend drop",
+      "train_cutoffs": "17-25",
+      "cal_cutoffs": "27-29",
+      "n_train": 6946,
+      "n_test": 1424,
+      "pr_auc": 0.1349,
+      "roc_auc": 0.6249,
+      "base_rate": 0.0716,
+      "precision_at_k": 0.162,
+      "recall_at_k": 0.2255,
+      "lift_at_k": 2.2613,
+      "brier": NaN,
+      "ece": NaN,
+      "brier_uncalibrated": NaN,
+      "ece_uncalibrated": NaN
+    },
+    {
+      "test_cutoff": 37,
+      "model": "logistic regression",
+      "train_cutoffs": "17-25",
+      "cal_cutoffs": "27-29",
+      "n_train": 6946,
+      "n_test": 1424,
+      "pr_auc": 0.2361,
+      "roc_auc": 0.8372,
+      "base_rate": 0.0716,
+      "precision_at_k": 0.2676,
+      "recall_at_k": 0.3725,
+      "lift_at_k": 3.736,
+      "brier": 0.0606,
+      "ece": 0.0143,
+      "brier_uncalibrated": NaN,
+      "ece_uncalibrated": NaN
+    },
+    {
+      "test_cutoff": 37,
+      "model": "LightGBM",
+      "train_cutoffs": "17-25",
+      "cal_cutoffs": "27-29",
+      "n_train": 6946,
+      "n_test": 1424,
+      "pr_auc": 0.2404,
+      "roc_auc": 0.8313,
+      "base_rate": 0.0716,
+      "precision_at_k": 0.2113,
+      "recall_at_k": 0.2941,
+      "lift_at_k": 2.9495,
+      "brier": 0.0604,
+      "ece": 0.0231,
+      "brier_uncalibrated": 0.0599,
+      "ece_uncalibrated": 0.0232
+    },
+    {
+      "test_cutoff": 41,
+      "model": "rule: recent spend drop",
+      "train_cutoffs": "17-29",
+      "cal_cutoffs": "31-33",
+      "n_train": 9787,
+      "n_test": 1410,
+      "pr_auc": 0.2498,
+      "roc_auc": 0.6735,
+      "base_rate": 0.0801,
+      "precision_at_k": 0.2482,
+      "recall_at_k": 0.3097,
+      "lift_at_k": 3.0973,
+      "brier": NaN,
+      "ece": NaN,
+      "brier_uncalibrated": NaN,
+      "ece_uncalibrated": NaN
+    },
+    {
+      "test_cutoff": 41,
+      "model": "logistic regression",
+      "train_cutoffs": "17-29",
+      "cal_cutoffs": "31-33",
+      "n_train": 9787,
+      "n_test": 1410,
+      "pr_auc": 0.2891,
+      "roc_auc": 0.8124,
+      "base_rate": 0.0801,
+      "precision_at_k": 0.2837,
+      "recall_at_k": 0.354,
+      "lift_at_k": 3.5398,
+      "brier": 0.0653,
+      "ece": 0.0133,
+      "brier_uncalibrated": NaN,
+      "ece_uncalibrated": NaN
+    },
+    {
+      "test_cutoff": 41,
+      "model": "LightGBM",
+      "train_cutoffs": "17-29",
+      "cal_cutoffs": "31-33",
+      "n_train": 9787,
+      "n_test": 1410,
+      "pr_auc": 0.2951,
+      "roc_auc": 0.8276,
+      "base_rate": 0.0801,
+      "precision_at_k": 0.3191,
+      "recall_at_k": 0.3982,
+      "lift_at_k": 3.9823,
+      "brier": 0.0637,
+      "ece": 0.0086,
+      "brier_uncalibrated": 0.0644,
+      "ece_uncalibrated": 0.0152
+    },
+    {
+      "test_cutoff": 45,
+      "model": "rule: recent spend drop",
+      "train_cutoffs": "17-33",
+      "cal_cutoffs": "35-37",
+      "n_train": 12641,
+      "n_test": 1422,
+      "pr_auc": 0.2859,
+      "roc_auc": 0.6928,
+      "base_rate": 0.0802,
+      "precision_at_k": 0.2887,
+      "recall_at_k": 0.3596,
+      "lift_at_k": 3.6016,
+      "brier": NaN,
+      "ece": NaN,
+      "brier_uncalibrated": NaN,
+      "ece_uncalibrated": NaN
+    },
+    {
+      "test_cutoff": 45,
+      "model": "logistic regression",
+      "train_cutoffs": "17-33",
+      "cal_cutoffs": "35-37",
+      "n_train": 12641,
+      "n_test": 1422,
+      "pr_auc": 0.3113,
+      "roc_auc": 0.8312,
+      "base_rate": 0.0802,
+      "precision_at_k": 0.331,
+      "recall_at_k": 0.4123,
+      "lift_at_k": 4.1286,
+      "brier": 0.0638,
+      "ece": 0.0155,
+      "brier_uncalibrated": NaN,
+      "ece_uncalibrated": NaN
+    },
+    {
+      "test_cutoff": 45,
+      "model": "LightGBM",
+      "train_cutoffs": "17-33",
+      "cal_cutoffs": "35-37",
+      "n_train": 12641,
+      "n_test": 1422,
+      "pr_auc": 0.2607,
+      "roc_auc": 0.8242,
+      "base_rate": 0.0802,
+      "precision_at_k": 0.3169,
+      "recall_at_k": 0.3947,
+      "lift_at_k": 3.9529,
+      "brier": 0.0653,
+      "ece": 0.0144,
+      "brier_uncalibrated": 0.066,
+      "ece_uncalibrated": 0.0153
+    }
+  ],
+  "summary": [
+    {
+      "model": "LightGBM",
+      "pr_auc": 0.2654,
+      "roc_auc": 0.8277,
+      "precision_at_k": 0.2824,
+      "recall_at_k": 0.3624,
+      "lift_at_k": 3.6282,
+      "brier": 0.0631,
+      "ece": 0.0154,
+      "brier_uncalibrated": 0.0634,
+      "ece_uncalibrated": 0.0179
+    },
+    {
+      "model": "logistic regression",
+      "pr_auc": 0.2789,
+      "roc_auc": 0.8269,
+      "precision_at_k": 0.2941,
+      "recall_at_k": 0.3796,
+      "lift_at_k": 3.8015,
+      "brier": 0.0632,
+      "ece": 0.0144,
+      "brier_uncalibrated": NaN,
+      "ece_uncalibrated": NaN
+    },
+    {
+      "model": "rule: recent spend drop",
+      "pr_auc": 0.2236,
+      "roc_auc": 0.6637,
+      "precision_at_k": 0.233,
+      "recall_at_k": 0.2983,
+      "lift_at_k": 2.9867,
+      "brier": NaN,
+      "ece": NaN,
+      "brier_uncalibrated": NaN,
+      "ece_uncalibrated": NaN
+    }
+  ],
+  "final_model": {
+    "train_cutoffs": [
+      17,
+      19,
+      21,
+      23,
+      25,
+      27,
+      29,
+      31,
+      33,
+      35,
+      37,
+      39,
+      41
+    ],
+    "calibration_cutoffs": [
+      43,
+      45
+    ],
+    "best_iteration": 304,
+    "n_train": 18338,
+    "features": [
+      "recency_weeks",
+      "spend_4w",
+      "spend_8w",
+      "spend_16w",
+      "trips_4w",
+      "trips_8w",
+      "trips_16w",
+      "active_weeks_8w",
+      "active_weeks_16w",
+      "basket_value_16w",
+      "momentum_4v16",
+      "momentum_8v16",
+      "spend_cv_16w",
+      "spend_slope_rel_16w",
+      "private_share_16w",
+      "promo_share_16w",
+      "discount_share_16w",
+      "buys_fuel_16w",
+      "redemptions_16w",
+      "departments_16w",
+      "categories_16w",
+      "stores_16w",
+      "campaigns_16w",
+      "type_a_16w"
+    ],
+    "target": "shops in <= 2 of the next 8 weeks",
+    "population": "shopped in >= 8 of the last 16 weeks"
+  },
+  "shap": {
+    "importance": {
+      "active_weeks_16w": 0.4001,
+      "trips_4w": 0.3476,
+      "spend_cv_16w": 0.1947,
+      "spend_4w": 0.1808,
+      "trips_8w": 0.1236,
+      "recency_weeks": 0.1229,
+      "spend_8w": 0.1032,
+      "discount_share_16w": 0.1024,
+      "private_share_16w": 0.0896,
+      "trips_16w": 0.077,
+      "spend_16w": 0.0762,
+      "campaigns_16w": 0.0741,
+      "categories_16w": 0.0564,
+      "basket_value_16w": 0.0494,
+      "promo_share_16w": 0.0441,
+      "stores_16w": 0.0413,
+      "spend_slope_rel_16w": 0.0356,
+      "redemptions_16w": 0.0326,
+      "type_a_16w": 0.0306,
+      "momentum_4v16": 0.0285,
+      "active_weeks_8w": 0.0271,
+      "buys_fuel_16w": 0.0232,
+      "momentum_8v16": 0.0225,
+      "departments_16w": 0.0201
+    },
+    "cases": {
+      "high": {
+        "household_id": 465,
+        "raw_prob": 0.5609491329072164,
+        "top_contributions": [
+          {
+            "feature": "active_weeks_16w",
+            "value": 9.0,
+            "shap": 0.7774189088088448
+          },
+          {
+            "feature": "trips_4w",
+            "value": 1.0,
+            "shap": 0.5851503141454469
+          },
+          {
+            "feature": "categories_16w",
+            "value": 14.0,
+            "shap": 0.522542276444274
+          },
+          {
+            "feature": "spend_4w",
+            "value": 0.65,
+            "shap": 0.4792539682005827
+          },
+          {
+            "feature": "trips_8w",
+            "value": 3.0,
+            "shap": 0.29543538597107044
+          }
+        ]
+      },
+      "median": {
+        "household_id": 742,
+        "raw_prob": 0.025325262139477726,
+        "top_contributions": [
+          {
+            "feature": "spend_4w",
+            "value": 16.71,
+            "shap": 0.3616468976425069
+          },
+          {
+            "feature": "active_weeks_16w",
+            "value": 15.0,
+            "shap": -0.2741631198457052
+          },
+          {
+            "feature": "trips_4w",
+            "value": 7.0,
+            "shap": -0.19541458587307742
+          },
+          {
+            "feature": "spend_8w",
+            "value": 11.75875,
+            "shap": 0.15093079823850977
+          },
+          {
+            "feature": "discount_share_16w",
+            "value": 0.1740718060375133,
+            "shap": -0.1421309604140517
+          }
+        ]
+      },
+      "low": {
+        "household_id": 1795,
+        "raw_prob": 0.0019531679081605945,
+        "top_contributions": [
+          {
+            "feature": "active_weeks_16w",
+            "value": 16.0,
+            "shap": -0.5724806378547403
+          },
+          {
+            "feature": "trips_4w",
+            "value": 67.0,
+            "shap": -0.41681375201713045
+          },
+          {
+            "feature": "spend_cv_16w",
+            "value": 0.5925360574124655,
+            "shap": -0.23005380091906455
+          },
+          {
+            "feature": "spend_16w",
+            "value": 121.64312499999998,
+            "shap": -0.22542436759909532
+          },
+          {
+            "feature": "spend_4w",
+            "value": 119.4925,
+            "shap": -0.21472018357268877
+          }
+        ]
+      }
+    }
+  },
+  "scored_households": 1416,
+  "headline": "On 3 out-of-time test folds LightGBM reached PR-AUC 0.27 (base rate 0.07, ROC-AUC 0.83) and caught 36% of the regular shoppers about to go quiet in its top 10%, vs 30% for the day-one rule."
+}

@@ -17,7 +17,6 @@ sys.path.insert(0, str(ROOT / "src"))  # lets the app import couponroi without i
 
 APP_DIR = ROOT / "artifacts" / "app"
 FIG_DIR = ROOT / "reports" / "figures"
-REPO_URL = "https://github.com/<your-username>/coupon-roi-targeting"
 
 INK, INK_2, MUTED, GRID, AXIS = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7"
 BLUE, ORANGE, AQUA, YELLOW, MAGENTA, GREEN, VIOLET, RED = (

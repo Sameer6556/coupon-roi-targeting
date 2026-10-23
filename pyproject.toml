@@ -38,7 +38,6 @@ dev = [
     "nbformat>=5.9",
     "nbconvert>=7.16",
     "ipykernel>=6.29",
-    "jupytext>=1.16",
 ]
 
 [project.scripts]

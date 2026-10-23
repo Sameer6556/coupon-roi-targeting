@@ -7,7 +7,7 @@ those, and scored on the test cutoff (rolling-origin backtest):
     train cutoffs  ->  calibration cutoffs  ->  test cutoff        (time flows right)
 
 Baselines: a rule an analyst would write on day one (spend dropped in the last
-4 weeks), and a logistic regression. The score that ships is LightGBM with isotonic
+4 weeks), and a logistic regression. The score that ships is LightGBM with Platt
 calibration, because the targeting step multiplies probabilities by dollars.
 """
 
@@ -21,13 +21,12 @@ import lightgbm as lgb
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.isotonic import IsotonicRegression
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
 
 from . import config, tracking
 from . import plotting as P
 from .features import FEATURE_DESCRIPTIONS, FEATURES, features_at, is_regular, training_frame
+from .models import IsotonicCalibrator, LogitModel, PlattCalibrator
 from .warehouse import connect
 
 log = logging.getLogger(__name__)
@@ -46,8 +45,6 @@ LGB_PARAMS = {
     "n_estimators": 2000,
     "verbose": -1,
 }
-LOG_FEATURES = {"spend_4w", "spend_8w", "spend_16w", "trips_4w", "trips_8w", "trips_16w",
-                "basket_value_16w", "redemptions_16w", "categories_16w"}
 
 
 # --------------------------------------------------------------------------- models
@@ -58,27 +55,6 @@ def heuristic_score(df: pd.DataFrame) -> np.ndarray:
     with recency as a tie-breaker."""
     momentum = df["momentum_4v16"].fillna(1.0).clip(0, 3)
     return (-momentum + 0.05 * df["recency_weeks"]).to_numpy()
-
-
-class LogitModel:
-    def fit(self, X: pd.DataFrame, y: np.ndarray) -> LogitModel:
-        Z = self._prep(X, fit=True)
-        self.model = LogisticRegression(max_iter=5000, C=0.5).fit(Z, y)
-        return self
-
-    def _prep(self, X: pd.DataFrame, fit: bool = False) -> np.ndarray:
-        Z = X[FEATURES].astype(float).copy()
-        for c in LOG_FEATURES:
-            Z[c] = np.log1p(Z[c].clip(lower=0))
-        if fit:
-            self.medians = Z.median()
-        Z = Z.fillna(self.medians)
-        if fit:
-            self.mu, self.sd = Z.mean(), Z.std().replace(0, 1)
-        return ((Z - self.mu) / self.sd).to_numpy()
-
-    def predict(self, X: pd.DataFrame) -> np.ndarray:
-        return self.model.predict_proba(self._prep(X))[:, 1]
 
 
 def fit_lgbm(train: pd.DataFrame, valid: pd.DataFrame, seed: int = config.SEED) -> lgb.LGBMClassifier:
@@ -94,23 +70,6 @@ def fit_lgbm(train: pd.DataFrame, valid: pd.DataFrame, seed: int = config.SEED) 
             callbacks=[lgb.early_stopping(100, verbose=False)],
         )
     return model
-
-
-class IsotonicCalibrator:
-    """Isotonic regression stored as plain arrays, so the API can apply it with np.interp
-    and doesn't need scikit-learn at serving time."""
-
-    def fit(self, p: np.ndarray, y: np.ndarray) -> IsotonicCalibrator:
-        iso = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0).fit(p, y)
-        self.x = iso.X_thresholds_.tolist()
-        self.y = iso.y_thresholds_.tolist()
-        return self
-
-    def __call__(self, p: np.ndarray) -> np.ndarray:
-        return np.interp(p, self.x, self.y)
-
-    def to_dict(self) -> dict:
-        return {"x": self.x, "y": self.y}
 
 
 # --------------------------------------------------------------------------- metrics
@@ -175,11 +134,13 @@ def backtest(frame: pd.DataFrame, cfg: config.ChurnConfig, track: bool) -> tuple
 
         logit = LogitModel().fit(tr, tr[TARGET].to_numpy())
         gbm = fit_lgbm(tr, ca)
-        cal = IsotonicCalibrator().fit(gbm.predict_proba(ca[FEATURES])[:, 1], ca[TARGET].to_numpy())
+        p_cal = gbm.predict_proba(ca[FEATURES])[:, 1]
+        cal = PlattCalibrator().fit(p_cal, ca[TARGET].to_numpy())
+        iso = IsotonicCalibrator().fit(p_cal, ca[TARGET].to_numpy())  # compared, not used
         raw = gbm.predict_proba(te[FEATURES])[:, 1]
         prob = cal(raw)
 
-        # ranking metrics use the raw score (isotonic is a step function and creates ties);
+        # ranking metrics use the raw score (Platt doesn't change the order anyway);
         # calibration metrics use the calibrated probability, which is what the money maths uses
         scores = {
             "rule: recent spend drop": (heuristic_score(te), None),
@@ -191,15 +152,34 @@ def backtest(frame: pd.DataFrame, cfg: config.ChurnConfig, track: bool) -> tuple
             if name == "LightGBM":
                 m["brier_uncalibrated"] = float(brier_score_loss(y, raw))
                 m["ece_uncalibrated"] = expected_calibration_error(y, raw)
-            rows.append({"test_cutoff": test_cut, "model": name, "train_cutoffs": f"{train_cuts[0]}-{train_cuts[-1]}",
-                         "cal_cutoffs": f"{cal_cuts[0]}-{cal_cuts[-1]}", "n_train": len(tr), "n_test": len(te), **m})
+                m["ece_isotonic"] = expected_calibration_error(y, iso(raw))
+                m["platt_a"], m["platt_b"] = cal.a, cal.b
+            rows.append(
+                {
+                    "test_cutoff": test_cut,
+                    "model": name,
+                    "train_cutoffs": f"{train_cuts[0]}-{train_cuts[-1]}",
+                    "cal_cutoffs": f"{cal_cuts[0]}-{cal_cuts[-1]}",
+                    "n_train": len(tr),
+                    "n_test": len(te),
+                    **m,
+                }
+            )
         with tracking.run(f"churn-backtest-{test_cut}", enabled=track, tags={"stage": "backtest"}) as ml:
             if ml:
-                ml.log_params({**{k: v for k, v in LGB_PARAMS.items() if k != "verbose"}, "test_cutoff": test_cut,
-                               "train_cutoffs": f"{train_cuts[0]}-{train_cuts[-1]}", "best_iteration": gbm.best_iteration_})
-                for r in rows[-len(scores):]:
+                ml.log_params(
+                    {
+                        **{k: v for k, v in LGB_PARAMS.items() if k != "verbose"},
+                        "test_cutoff": test_cut,
+                        "train_cutoffs": f"{train_cuts[0]}-{train_cuts[-1]}",
+                        "best_iteration": gbm.best_iteration_,
+                    }
+                )
+                for r in rows[-len(scores) :]:
                     tag = r["model"].split(" ")[0].replace(":", "").lower()
-                    ml.log_metrics({f"{tag}_{k}": r[k] for k in ("pr_auc", "roc_auc", "recall_at_k", "lift_at_k")})
+                    ml.log_metrics(
+                        {f"{tag}_{k}": r[k] for k in ("pr_auc", "roc_auc", "recall_at_k", "lift_at_k")}
+                    )
         last = {"test": te, "raw": raw, "prob": prob, "y": y, "test_cutoff": test_cut}
     return pd.DataFrame(rows), last
 
@@ -207,13 +187,15 @@ def backtest(frame: pd.DataFrame, cfg: config.ChurnConfig, track: bool) -> tuple
 # --------------------------------------------------------------------------- final model
 
 
-def train_final(frame: pd.DataFrame, cfg: config.ChurnConfig) -> tuple[lgb.LGBMClassifier, IsotonicCalibrator, dict]:
+def train_final(
+    frame: pd.DataFrame, cfg: config.ChurnConfig
+) -> tuple[lgb.LGBMClassifier, PlattCalibrator, dict]:
     cutoffs = sorted(int(c) for c in frame.cutoff.unique())
     cal_cuts = cutoffs[-cfg.calibration_cutoffs :]
     train_cuts = cutoffs[: -cfg.calibration_cutoffs]
     tr, ca = frame[frame.cutoff.isin(train_cuts)], frame[frame.cutoff.isin(cal_cuts)]
     gbm = fit_lgbm(tr, ca)
-    cal = IsotonicCalibrator().fit(gbm.predict_proba(ca[FEATURES])[:, 1], ca[TARGET].to_numpy())
+    cal = PlattCalibrator().fit(gbm.predict_proba(ca[FEATURES])[:, 1], ca[TARGET].to_numpy())
     meta = {
         "train_cutoffs": train_cuts,
         "calibration_cutoffs": cal_cuts,
@@ -226,7 +208,7 @@ def train_final(frame: pd.DataFrame, cfg: config.ChurnConfig) -> tuple[lgb.LGBMC
     return gbm, cal, meta
 
 
-def save_model(gbm: lgb.LGBMClassifier, cal: IsotonicCalibrator, meta: dict) -> None:
+def save_model(gbm: lgb.LGBMClassifier, cal: PlattCalibrator, meta: dict) -> None:
     config.MODEL_DIR.mkdir(parents=True, exist_ok=True)
     gbm.booster_.save_model(str(config.MODEL_DIR / "lapse_lgbm.txt"), num_iteration=gbm.best_iteration_)
     (config.MODEL_DIR / "lapse_calibrator.json").write_text(json.dumps(cal.to_dict()))
@@ -249,19 +231,39 @@ def score_latest(con, gbm, cal) -> pd.DataFrame:
 
 def _fig_backtest(metrics: pd.DataFrame, cfg: config.ChurnConfig) -> None:
     order = ["rule: recent spend drop", "logistic regression", "LightGBM"]
-    agg = metrics[metrics.model.isin(order)].groupby("model")[["pr_auc", "recall_at_k"]].agg(["mean", "min", "max"])
+    agg = (
+        metrics[metrics.model.isin(order)]
+        .groupby("model")[["pr_auc", "recall_at_k"]]
+        .agg(["mean", "min", "max"])
+    )
     agg = agg.reindex(order)
     base = metrics.base_rate.mean()
     fig, axes = plt.subplots(1, 2, figsize=(11, 3.8))
-    for ax, (col, title, sub) in zip(axes, [
-        ("pr_auc", "PR-AUC (area under precision-recall)", f"random guessing = base rate ≈ {base:.2f}"),
-        ("recall_at_k", f"Share of lapsers caught in the top {cfg.top_k_share:.0%}", f"random = {cfg.top_k_share:.0%}"),
-    ], strict=True):
+    for ax, (col, title, sub) in zip(
+        axes,
+        [
+            ("pr_auc", "PR-AUC (area under precision-recall)", f"random guessing = base rate ≈ {base:.2f}"),
+            (
+                "recall_at_k",
+                f"Share of lapsers caught in the top {cfg.top_k_share:.0%}",
+                f"random = {cfg.top_k_share:.0%}",
+            ),
+        ],
+        strict=True,
+    ):
         y = np.arange(len(order))[::-1]
         means = agg[(col, "mean")].to_numpy()
         colors = [P.NEUTRAL, P.NEUTRAL, P.BLUE]
         ax.barh(y, means, color=colors, height=0.5)
-        ax.errorbar(means, y, xerr=[means - agg[(col, "min")], agg[(col, "max")] - means], fmt="none", ecolor=P.INK_2, lw=1, capsize=3)
+        ax.errorbar(
+            means,
+            y,
+            xerr=[means - agg[(col, "min")], agg[(col, "max")] - means],
+            fmt="none",
+            ecolor=P.INK_2,
+            lw=1,
+            capsize=3,
+        )
         for yi, v in zip(y, means, strict=True):
             ax.text(v + 0.01, yi + 0.3, f"{v:.2f}", fontsize=9, color=P.INK, va="center")
         ref = base if col == "pr_auc" else cfg.top_k_share
@@ -281,7 +283,7 @@ def _fig_calibration(last: dict) -> None:
     fig, ax = plt.subplots(figsize=(5.6, 4.8))
     top = 0.0
     curves = []
-    for p, name, color in [(raw, "LightGBM raw", P.ORANGE), (prob, "after isotonic", P.BLUE)]:
+    for p, name, color in [(raw, "LightGBM raw", P.ORANGE), (prob, "after Platt scaling", P.BLUE)]:
         edges = np.unique(np.quantile(p, np.linspace(0, 1, 11)))
         idx = np.clip(np.searchsorted(edges, p, side="right") - 1, 0, len(edges) - 2)
         mp = np.array([p[idx == b].mean() for b in range(len(edges) - 1) if (idx == b).any()])
@@ -324,9 +326,15 @@ def _fig_shap(gbm, X: pd.DataFrame) -> dict:
 
     fig = plt.figure()
     shap.plots.beeswarm(
-        shap.Explanation(values, base_values=sv.base_values if np.ndim(sv.base_values) == 1 else sv.base_values[..., 1],
-                         data=X[FEATURES].to_numpy(), feature_names=[FEATURE_DESCRIPTIONS[f] for f in FEATURES]),
-        max_display=12, show=False, plot_size=(8.4, 5.2),
+        shap.Explanation(
+            values,
+            base_values=sv.base_values if np.ndim(sv.base_values) == 1 else sv.base_values[..., 1],
+            data=X[FEATURES].to_numpy(),
+            feature_names=[FEATURE_DESCRIPTIONS[f] for f in FEATURES],
+        ),
+        max_display=12,
+        show=False,
+        plot_size=(8.4, 5.2),
     )
     plt.title("Direction of each feature's effect", loc="left", fontsize=12, fontweight="semibold", pad=14)
     P.save(plt.gcf(), "churn_4_shap_beeswarm")
@@ -341,19 +349,32 @@ def _fig_shap(gbm, X: pd.DataFrame) -> dict:
         cases[name] = {
             "household_id": int(X.iloc[i]["household_id"]),
             "raw_prob": float(p[i]),
-            "top_contributions": [{"feature": f, "value": float(X.iloc[i][f]), "shap": float(v)} for f, v in topc.items()],
+            "top_contributions": [
+                {"feature": f, "value": float(X.iloc[i][f]), "shap": float(v)} for f, v in topc.items()
+            ],
         }
     fig, axes = plt.subplots(1, 3, figsize=(13, 3.6))
     for ax, (name, case) in zip(axes, cases.items(), strict=True):
         c = pd.DataFrame(case["top_contributions"])[::-1]
-        ax.barh([FEATURE_DESCRIPTIONS[f] for f in c.feature], c.shap, color=[P.NEG if v > 0 else P.POS for v in c.shap], height=0.55)
+        ax.barh(
+            [FEATURE_DESCRIPTIONS[f] for f in c.feature],
+            c.shap,
+            color=[P.NEG if v > 0 else P.POS for v in c.shap],
+            height=0.55,
+        )
         ax.axvline(0, color=P.INK_2, lw=0.8)
         ax.grid(axis="x")
         ax.grid(axis="y", visible=False)
         ax.set_title(f"{name} risk: household {case['household_id']}", fontsize=10)
         P.subtitle(ax, f"raw model probability {case['raw_prob']:.0%}")
-    fig.suptitle("Why the model scored these households the way it did (red pushes risk up)", x=0.01, y=1.06, ha="left",
-                 fontsize=12, fontweight="semibold")
+    fig.suptitle(
+        "Why the model scored these households the way it did (red pushes risk up)",
+        x=0.01,
+        y=1.06,
+        ha="left",
+        fontsize=12,
+        fontweight="semibold",
+    )
     fig.tight_layout()
     P.save(fig, "churn_5_shap_cases")
     return {"importance": imp.round(4).to_dict(), "cases": cases}
@@ -367,11 +388,28 @@ def run(cfg: config.ChurnConfig = config.SETTINGS.churn, track: bool = True) -> 
     try:
         frame = training_frame(con, cfg.cutoffs())
         frame = frame[is_regular(frame)].reset_index(drop=True)
-        log.info("training frame: %d rows over %d cutoffs, lapse rate %.3f", len(frame), frame.cutoff.nunique(), frame[TARGET].mean())
+        log.info(
+            "training frame: %d rows over %d cutoffs, lapse rate %.3f",
+            len(frame),
+            frame.cutoff.nunique(),
+            frame[TARGET].mean(),
+        )
         metrics, last = backtest(frame, cfg, track)
         summary = (
-            metrics.groupby("model")[["pr_auc", "roc_auc", "precision_at_k", "recall_at_k", "lift_at_k", "brier", "ece",
-                                      "brier_uncalibrated", "ece_uncalibrated"]]
+            metrics.groupby("model")[
+                [
+                    "pr_auc",
+                    "roc_auc",
+                    "precision_at_k",
+                    "recall_at_k",
+                    "lift_at_k",
+                    "brier",
+                    "ece",
+                    "brier_uncalibrated",
+                    "ece_uncalibrated",
+                    "ece_isotonic",
+                ]
+            ]
             .mean()
             .round(4)
         )
@@ -413,7 +451,12 @@ def run(cfg: config.ChurnConfig = config.SETTINGS.churn, track: bool = True) -> 
     }
     with tracking.run("churn-final", enabled=track, tags={"stage": "final"}) as ml:
         if ml:
-            ml.log_params({"best_iteration": meta["best_iteration"], "train_cutoffs": f"{meta['train_cutoffs'][0]}-{meta['train_cutoffs'][-1]}"})
+            ml.log_params(
+                {
+                    "best_iteration": meta["best_iteration"],
+                    "train_cutoffs": f"{meta['train_cutoffs'][0]}-{meta['train_cutoffs'][-1]}",
+                }
+            )
             ml.log_metrics({f"backtest_{k}": float(v) for k, v in best.items() if pd.notna(v)})
             for f in sorted(config.FIG_DIR.glob("churn_*.png")):
                 ml.log_artifact(str(f), artifact_path="figures")

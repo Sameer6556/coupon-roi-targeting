@@ -37,7 +37,15 @@ from .warehouse import connect
 log = logging.getLogger(__name__)
 Z95 = float(stats.norm.ppf(0.975))
 WAVE_SQL = config.SQL_DIR / "features" / "wave_units.sql"
-SKEWED = {"pre_spend", "pre_trips", "prior_spend", "pre_departments", "prior_waves", "co_exposure_pre", "co_exposure_post"}
+SKEWED = {
+    "pre_spend",
+    "pre_trips",
+    "prior_spend",
+    "pre_departments",
+    "prior_waves",
+    "co_exposure_pre",
+    "co_exposure_post",
+}
 
 
 # --------------------------------------------------------------------------- waves
@@ -64,7 +72,9 @@ class Wave:
         return f"wave {self.wave} (campaign {self.campaign_id})"
 
 
-def list_waves(con: duckdb.DuckDBPyConnection, cfg: config.CausalConfig = config.SETTINGS.causal) -> list[Wave]:
+def list_waves(
+    con: duckdb.DuckDBPyConnection, cfg: config.CausalConfig = config.SETTINGS.causal
+) -> list[Wave]:
     camps = con.execute(
         "SELECT campaign_id, start_week, end_week FROM dim_campaign WHERE campaign_type = ? ORDER BY start_week",
         [cfg.focal_type],
@@ -85,7 +95,9 @@ def list_waves(con: duckdb.DuckDBPyConnection, cfg: config.CausalConfig = config
     return waves
 
 
-def unit_table(con: duckdb.DuckDBPyConnection, w: Wave, cfg: config.CausalConfig = config.SETTINGS.causal) -> pd.DataFrame:
+def unit_table(
+    con: duckdb.DuckDBPyConnection, w: Wave, cfg: config.CausalConfig = config.SETTINGS.causal
+) -> pd.DataFrame:
     params = {
         "campaign_id": w.campaign_id,
         "pre_start": w.pre_start,
@@ -259,7 +271,9 @@ def dr_did_wave(df: pd.DataFrame, covariates: list[str], trim: float = 0.99) -> 
     return float(att), int((~keep).sum())
 
 
-def dr_did(con: duckdb.DuckDBPyConnection, waves: list[Wave], cfg: config.CausalConfig, seed: int = config.SEED) -> dict:
+def dr_did(
+    con: duckdb.DuckDBPyConnection, waves: list[Wave], cfg: config.CausalConfig, seed: int = config.SEED
+) -> dict:
     """Pooled DR-DiD (treated-weighted average of waves) with a household cluster bootstrap."""
     covs = list(cfg.covariates)
     units = {w.wave: unit_table(con, w, cfg) for w in waves}
@@ -312,7 +326,9 @@ def analyze_wave(
     strata = df[exact_on].astype(str).agg("|".join, axis=1).to_numpy() if exact_on else None
     key_cols = [c for c in cfg.mahalanobis_on if c in covariates]
     key = design_matrix(df, key_cols).to_numpy() if key_cols else None
-    pairs = greedy_match(df["treated"].to_numpy(), logit, caliper_sd, strata=strata, key=key, replace=cfg.with_replacement)
+    pairs = greedy_match(
+        df["treated"].to_numpy(), logit, caliper_sd, strata=strata, key=key, replace=cfg.with_replacement
+    )
     pairs["pair_id"] = [f"{w.wave}-{i}" for i in range(len(pairs))]
 
     mt = df.iloc[pairs.t].assign(pair_id=pairs.pair_id.to_numpy())
@@ -367,7 +383,8 @@ def event_study(con: duckdb.DuckDBPyConnection, waves: list[Wave], matched: pd.D
     for w in waves:
         m = matched[matched.wave == w.wave][["household_id", "treated"]]
         s = con.execute(
-            "SELECT household_id, week, spend_xf FROM hh_week WHERE week BETWEEN ? AND ?", [w.pre_start, w.end]
+            "SELECT household_id, week, spend_xf FROM hh_week WHERE week BETWEEN ? AND ?",
+            [w.pre_start, w.end],
         ).df()
         s = s.merge(m, on="household_id", how="inner")
         base = s[s.week < w.start].groupby("household_id").spend_xf.mean()
@@ -395,7 +412,14 @@ def placebo(con: duckdb.DuckDBPyConnection, waves: list[Wave], cfg: config.Causa
         if fake.start - fake.pre_start < 2 or fake.end < fake.start:
             continue
         res, m = analyze_wave(con, fake, cfg)
-        per_wave.append({"wave": w.wave, "fake_pre": res["pre_window"], "fake_post": res["post_window"], **res["did_matched"]})
+        per_wave.append(
+            {
+                "wave": w.wave,
+                "fake_pre": res["pre_window"],
+                "fake_post": res["post_window"],
+                **res["did_matched"],
+            }
+        )
         frames.append(m)
     pooled = stacked_effect(pd.concat(frames, ignore_index=True)) if frames else None
     return {"per_wave": per_wave, "pooled": pooled}
@@ -429,7 +453,9 @@ def cuped(matched: pd.DataFrame) -> dict:
     }
 
 
-def power_analysis(matched: pd.DataFrame, effect_per_week: float, alpha: float = 0.05, power: float = 0.8) -> dict:
+def power_analysis(
+    matched: pd.DataFrame, effect_per_week: float, alpha: float = 0.05, power: float = 0.8
+) -> dict:
     """Size a randomised holdout for the next wave.
 
     MDE = (z_{1-a/2} + z_{power}) * sigma * sqrt(1/n_t + 1/n_c), with sigma^2 scaled by
@@ -500,7 +526,15 @@ def segment_effects(matched: pd.DataFrame) -> list[dict]:
                 continue
             eff = stacked_effect(g)
             base = float(g[g.treated == 1].pre_spend.mean())
-            out.append({"dimension": dim, "segment": str(level), "n_pairs": int(g.treated.sum()), "baseline": base, **eff})
+            out.append(
+                {
+                    "dimension": dim,
+                    "segment": str(level),
+                    "n_pairs": int(g.treated.sum()),
+                    "baseline": base,
+                    **eff,
+                }
+            )
     return out
 
 
@@ -512,7 +546,10 @@ def segment_effects_naive(matched: pd.DataFrame) -> list[dict]:
         lambda s: pd.qcut(s.rank(method="first"), 3, labels=["light", "medium", "heavy"])
     )
     m = m.join(t.set_index("pair_id")[["tier"]], on="pair_id")
-    return [{"segment": str(k), "n_pairs": int(g.treated.sum()), **stacked_effect(g)} for k, g in m.groupby("tier", observed=True)]
+    return [
+        {"segment": str(k), "n_pairs": int(g.treated.sum()), **stacked_effect(g)}
+        for k, g in m.groupby("tier", observed=True)
+    ]
 
 
 # --------------------------------------------------------------------------- orchestration
@@ -530,8 +567,13 @@ def run(cfg: config.CausalConfig = config.SETTINGS.causal) -> dict:
             matched_frames.append(m)
             log.info(
                 "%s: matched %d/%d recipients, DiD %.2f [%.2f, %.2f] $/wk, max|SMD| after %.3f",
-                w.label, res["n_pairs"], res["n_treated"], res["did_matched"]["est"],
-                res["did_matched"]["lo"], res["did_matched"]["hi"], res["max_abs_smd_after"],
+                w.label,
+                res["n_pairs"],
+                res["n_treated"],
+                res["did_matched"]["est"],
+                res["did_matched"]["lo"],
+                res["did_matched"]["hi"],
+                res["max_abs_smd_after"],
             )
         matched = pd.concat(matched_frames, ignore_index=True)
         all_units = pd.concat([unit_table(con, w, cfg) for w in waves], ignore_index=True)
@@ -598,7 +640,13 @@ def run(cfg: config.CausalConfig = config.SETTINGS.causal) -> dict:
 
 def robustness_checks(con, waves, cfg, pooled, plc) -> list[dict]:
     specs: list[dict] = [{"spec": "main: matched DiD", **pooled["did_matched"], "n_pairs": pooled["n_pairs"]}]
-    specs.append({"spec": "+ regression adjustment (doubly robust)", **pooled["did_matched_dr"], "n_pairs": pooled["n_pairs"]})
+    specs.append(
+        {
+            "spec": "+ regression adjustment (doubly robust)",
+            **pooled["did_matched_dr"],
+            "n_pairs": pooled["n_pairs"],
+        }
+    )
 
     def rerun(name: str, cfg_override: dict | None = None, **kw) -> None:
         c = replace(cfg, **cfg_override) if cfg_override else cfg
@@ -610,7 +658,10 @@ def robustness_checks(con, waves, cfg, pooled, plc) -> list[dict]:
     rerun("matching with replacement", cfg_override={"with_replacement": True})
     rerun("no other campaigns during the wave", subset=lambda d: d[d.co_exposure_post == 0])
     rerun("propensity only (no exact matching)", exact_on=[])
-    rerun("spend + trips only (fewer covariates)", covariates=["pre_spend", "pre_trips", "pre_active_share", "prior_spend"])
+    rerun(
+        "spend + trips only (fewer covariates)",
+        covariates=["pre_spend", "pre_trips", "pre_active_share", "prior_spend"],
+    )
     drd = dr_did(con, waves, cfg)
     specs.append({"spec": "DR-DiD weighting, no matching (Sant'Anna-Zhao)", **drd, "n_pairs": None})
     if plc.get("pooled"):
@@ -636,9 +687,20 @@ def campaign_roi(pooled: dict, biz: config.BusinessConfig = config.SETTINGS.busi
     for m in biz.margin_grid:
         for c in biz.cost_grid:
             be = c / (weeks * m)
-            grid.append({"margin": m, "cost": c, "breakeven_lift": be, "p_profit": float(1 - stats.norm.cdf((be - d["est"]) / d["se"]))})
+            grid.append(
+                {
+                    "margin": m,
+                    "cost": c,
+                    "breakeven_lift": be,
+                    "p_profit": float(1 - stats.norm.cdf((be - d["est"]) / d["se"])),
+                }
+            )
     return {
-        "assumptions": {"gross_margin": biz.gross_margin, "cost_per_booklet": biz.cost_per_contact, "weeks": weeks},
+        "assumptions": {
+            "gross_margin": biz.gross_margin,
+            "cost_per_booklet": biz.cost_per_contact,
+            "weeks": weeks,
+        },
         "breakeven_lift_per_week": breakeven,
         "breakeven_rel": breakeven / pooled["baseline_weekly_spend"],
         "simulated_profit_per_booklet": profit,
@@ -700,8 +762,26 @@ def _fig_balance(r: dict) -> None:
         ax.axvline(0, color=P.AXIS, lw=0.8)
         for yi, (bf, af) in enumerate(zip(b.before, b.after, strict=True)):
             ax.plot([bf, af], [yi, yi], color=P.GRID, lw=1.2, zorder=1)
-        ax.scatter(b.before, y, s=34, color=P.NEUTRAL, zorder=2, label="before matching", edgecolor=P.SURFACE, linewidth=1.5)
-        ax.scatter(b.after, y, s=34, color=P.BLUE, zorder=3, label="after matching", edgecolor=P.SURFACE, linewidth=1.5)
+        ax.scatter(
+            b.before,
+            y,
+            s=34,
+            color=P.NEUTRAL,
+            zorder=2,
+            label="before matching",
+            edgecolor=P.SURFACE,
+            linewidth=1.5,
+        )
+        ax.scatter(
+            b.after,
+            y,
+            s=34,
+            color=P.BLUE,
+            zorder=3,
+            label="after matching",
+            edgecolor=P.SURFACE,
+            linewidth=1.5,
+        )
         ax.set_title(f"wave {w['wave']}", fontsize=10)
         ax.grid(axis="x")
         ax.grid(axis="y", visible=False)
@@ -709,8 +789,22 @@ def _fig_balance(r: dict) -> None:
     axes[0].set_yticks(y, [COV_LABELS.get(c, c) for c in covs])
     axes[0].invert_yaxis()
     axes[0].legend(loc="lower right", fontsize=8)
-    fig.suptitle("Matching removes the gap between recipients and non-recipients", x=0.01, y=1.04, ha="left", fontsize=12, fontweight="semibold")
-    fig.text(0.01, 0.985, "grey band = |SMD| < 0.1, the usual bar for good balance", fontsize=9, color=P.INK_2, ha="left")
+    fig.suptitle(
+        "Matching removes the gap between recipients and non-recipients",
+        x=0.01,
+        y=1.04,
+        ha="left",
+        fontsize=12,
+        fontweight="semibold",
+    )
+    fig.text(
+        0.01,
+        0.985,
+        "grey band = |SMD| < 0.1, the usual bar for good balance",
+        fontsize=9,
+        color=P.INK_2,
+        ha="left",
+    )
     fig.tight_layout(rect=(0, 0, 1, 0.95))
     P.save(fig, "causal_1_balance")
 
@@ -728,7 +822,9 @@ def _fig_estimates(r: dict) -> None:
     for xi, v in zip(x, naive, strict=True):
         a1.text(xi - 0.17, v + 0.6, f"${v:.0f}", ha="center", fontsize=8.5, color=P.INK_2)
     for xi, d in zip(x, did, strict=True):
-        a1.text(xi + 0.17, max(d["est"], 0) + 0.6, P.money(d["est"], 1), ha="center", fontsize=8.5, color=P.INK)
+        a1.text(
+            xi + 0.17, max(d["est"], 0) + 0.6, P.money(d["est"], 1), ha="center", fontsize=8.5, color=P.INK
+        )
     a1.set_xticks(x, labels)
     a1.set_ylabel("$ per household per week")
     a1.set_ylim(min(0, min(d["est"] for d in did)) - 1, max(naive) * 1.25)
@@ -790,7 +886,9 @@ def _fig_robustness(r: dict) -> None:
     ax.grid(axis="y", visible=False)
     ax.set_xlabel("effect on weekly spend, $ (95% CI), all waves pooled")
     ax.set_title("Robustness checks")
-    P.subtitle(ax, "the estimate should not swing wildly between reasonable choices; the placebo should sit at 0")
+    P.subtitle(
+        ax, "the estimate should not swing wildly between reasonable choices; the placebo should sit at 0"
+    )
     P.save(fig, "causal_4_robustness")
 
 
@@ -806,16 +904,29 @@ def _fig_cuped_power(r: dict) -> None:
     a1.grid(axis="x")
     a1.grid(axis="y", visible=False)
     a1.set_title("Using the baseline shrinks the noise")
-    P.subtitle(a1, f"95% CI half-width, same matched sample (CUPED cuts variance {c['variance_reduction_vs_post']:.0%})")
+    P.subtitle(
+        a1,
+        f"95% CI half-width, same matched sample (CUPED cuts variance {c['variance_reduction_vs_post']:.0%})",
+    )
 
     curve = pd.DataFrame(p["curve"])
     base = p["baseline_weekly_spend"]
     for i, N in enumerate(sorted(curve.households.unique())):
         d = curve[curve.households == N]
-        a2.plot(d.holdout_share, 100 * d.mde_cuped / base, color=P.SERIES[i], label=f"{N:,} households, CUPED")
+        a2.plot(
+            d.holdout_share, 100 * d.mde_cuped / base, color=P.SERIES[i], label=f"{N:,} households, CUPED"
+        )
         a2.plot(d.holdout_share, 100 * d.mde_plain / base, color=P.SERIES[i], lw=1.2, alpha=0.45)
     a2.axhline(100 * r["pooled"]["rel_lift"], color=P.INK_2, lw=0.9)
-    a2.text(0.5, 100 * r["pooled"]["rel_lift"], " effect we estimated", fontsize=8.5, color=P.INK_2, va="bottom", ha="right")
+    a2.text(
+        0.5,
+        100 * r["pooled"]["rel_lift"],
+        " effect we estimated",
+        fontsize=8.5,
+        color=P.INK_2,
+        va="bottom",
+        ha="right",
+    )
     a2.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     a2.set_xlabel("share of households held out (no booklet)")
     a2.set_ylabel("minimum detectable lift, % of spend")
@@ -831,14 +942,20 @@ def _fig_segments(r: dict) -> None:
     seg = pd.DataFrame(r["segments"])
     if seg.empty:
         return
-    titles = {"spend_tier": "spend tier (before baseline)", "booklet_seg": "booklet history", "coupon_seg": "coupon habit"}
+    titles = {
+        "spend_tier": "spend tier (before baseline)",
+        "booklet_seg": "booklet history",
+        "coupon_seg": "coupon habit",
+    }
     fig, ax = plt.subplots(figsize=(8.6, 0.5 * len(seg) + 1.6))
     y = np.arange(len(seg))[::-1]
     labels = [f"{titles[d]}: {s}" for d, s in zip(seg.dimension, seg.segment, strict=True)]
     for yi, row in zip(y, seg.itertuples(), strict=True):
         ax.plot([row.lo, row.hi], [yi, yi], color=P.BLUE, lw=2)
         ax.plot(row.est, yi, "o", color=P.BLUE, mec=P.SURFACE, mew=1.5, ms=7)
-        ax.text(row.hi + 0.2, yi, f"{row.est:+.2f}  (n={row.n_pairs:,})", va="center", fontsize=8.5, color=P.INK_2)
+        ax.text(
+            row.hi + 0.2, yi, f"{row.est:+.2f}  (n={row.n_pairs:,})", va="center", fontsize=8.5, color=P.INK_2
+        )
     ax.axvline(0, color=P.INK_2, lw=0.9)
     ax.axvline(r["pooled"]["did_matched"]["est"], color=P.NEUTRAL, lw=1)
     ax.set_yticks(y, labels)

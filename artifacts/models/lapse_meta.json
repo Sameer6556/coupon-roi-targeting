@@ -1,0 +1,51 @@
+{
+  "train_cutoffs": [
+    17,
+    19,
+    21,
+    23,
+    25,
+    27,
+    29,
+    31,
+    33,
+    35,
+    37,
+    39,
+    41
+  ],
+  "calibration_cutoffs": [
+    43,
+    45
+  ],
+  "best_iteration": 304,
+  "n_train": 18338,
+  "features": [
+    "recency_weeks",
+    "spend_4w",
+    "spend_8w",
+    "spend_16w",
+    "trips_4w",
+    "trips_8w",
+    "trips_16w",
+    "active_weeks_8w",
+    "active_weeks_16w",
+    "basket_value_16w",
+    "momentum_4v16",
+    "momentum_8v16",
+    "spend_cv_16w",
+    "spend_slope_rel_16w",
+    "private_share_16w",
+    "promo_share_16w",
+    "discount_share_16w",
+    "buys_fuel_16w",
+    "redemptions_16w",
+    "departments_16w",
+    "categories_16w",
+    "stores_16w",
+    "campaigns_16w",
+    "type_a_16w"
+  ],
+  "target": "shops in <= 2 of the next 8 weeks",
+  "population": "shopped in >= 8 of the last 16 weeks"
+}

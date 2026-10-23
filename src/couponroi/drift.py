@@ -51,10 +51,19 @@ def run() -> dict:
     finally:
         con.close()
     ref, cur = ref[is_regular(ref)], cur[is_regular(cur)]
-    rows = [{"feature": f, "psi": psi(ref[f].to_numpy(float), cur[f].to_numpy(float)),
-             "ref_mean": float(ref[f].mean()), "cur_mean": float(cur[f].mean())} for f in FEATURES]
+    rows = [
+        {
+            "feature": f,
+            "psi": psi(ref[f].to_numpy(float), cur[f].to_numpy(float)),
+            "ref_mean": float(ref[f].mean()),
+            "cur_mean": float(cur[f].mean()),
+        }
+        for f in FEATURES
+    ]
     table = pd.DataFrame(rows).sort_values("psi", ascending=False)
-    table["status"] = pd.cut(table.psi, [-np.inf, 0.1, 0.25, np.inf], labels=["stable", "watch", "drifted"]).astype(str)
+    table["status"] = pd.cut(
+        table.psi, [-np.inf, 0.1, 0.25, np.inf], labels=["stable", "watch", "drifted"]
+    ).astype(str)
 
     top = table.head(12)[::-1]
     colors = [P.NEG if s == "drifted" else (P.YELLOW if s == "watch" else P.NEUTRAL) for s in top.status]
@@ -69,7 +78,9 @@ def run() -> dict:
     ax.grid(axis="y", visible=False)
     ax.set_xlabel("population stability index")
     ax.set_title("Feature drift: first training week vs scoring week")
-    P.subtitle(ax, f"regular shoppers, week {ref_cut} vs week {cur_cut}; colour and label both mark the status")
+    P.subtitle(
+        ax, f"regular shoppers, week {ref_cut} vs week {cur_cut}; colour and label both mark the status"
+    )
     P.save(fig, "drift_1_psi")
 
     results = {

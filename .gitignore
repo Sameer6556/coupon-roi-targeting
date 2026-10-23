@@ -1,9 +1,12 @@
-# data and local builds (everything here is rebuilt by `couponroi all`)
+# rebuilt by `couponroi all`
 data/
 mlruns/
 mlflow.db
-artifacts/models/
-artifacts/*.duckdb
+artifacts/*.parquet
+
+# committed on purpose (small, and needed to run the app/API without retraining):
+#   artifacts/app/     slim DuckDB + results JSON for the Streamlit app
+#   artifacts/models/  LightGBM lapse model, calibrator, uplift model
 
 # python
 __pycache__/

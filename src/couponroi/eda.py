@@ -84,7 +84,9 @@ def cohort_retention(con) -> dict:
         n = int(d.loc[d.blocks_since_first == 0, "households"].iloc[0])
         sizes[label] = n
         ax.plot(d.blocks_since_first, d.retention, color=P.SERIES[i], label=f"{label} (n={n:,})")
-        ax.plot(d.blocks_since_first.iloc[-1], d.retention.iloc[-1], "o", color=P.SERIES[i], mec=P.SURFACE, mew=2)
+        ax.plot(
+            d.blocks_since_first.iloc[-1], d.retention.iloc[-1], "o", color=P.SERIES[i], mec=P.SURFACE, mew=2
+        )
     ax.set_ylim(0, 1.02)
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax.set_xlabel("4-week blocks since first purchase")
@@ -168,7 +170,9 @@ def targeting_bias(con) -> dict:
     for xi, (r, n, k) in enumerate(zip(piv["recipients"], piv["non-recipients"], ratio, strict=True)):
         ax.text(xi - w / 2, r + 1, f"${r:.0f}", ha="center", fontsize=8.5, color=P.INK)
         ax.text(xi + w / 2, n + 1, f"${n:.0f}", ha="center", fontsize=8.5, color=P.INK_2)
-        ax.text(xi, max(r, n) + 9, f"{k:.1f}x more", ha="center", fontsize=9.5, color=P.INK, fontweight="semibold")
+        ax.text(
+            xi, max(r, n) + 9, f"{k:.1f}x more", ha="center", fontsize=9.5, color=P.INK, fontweight="semibold"
+        )
     ax.set_xticks(x, labels)
     ax.set_ylim(0, piv.values.max() * 1.35)
     ax.set_ylabel("avg weekly spend before the wave ($)")
@@ -188,13 +192,17 @@ def targeting_bias(con) -> dict:
 
 def redemption(con) -> dict:
     df = q(con, "redemption_by_type")
-    conc = con.execute(
-        """WITH r AS (SELECT household_id, count(*) AS n FROM fct_redemptions GROUP BY 1),
+    conc = (
+        con.execute(
+            """WITH r AS (SELECT household_id, count(*) AS n FROM fct_redemptions GROUP BY 1),
            ranked AS (SELECT n, row_number() OVER (ORDER BY n DESC) AS rk, count(*) OVER () AS hh,
                       sum(n) OVER () AS total FROM r)
            SELECT max(hh) AS redeeming_households, max(total) AS redemptions,
                   sum(n) FILTER (WHERE rk <= ceil(hh * 0.1)) / max(total) AS top10_share FROM ranked"""
-    ).df().iloc[0]
+        )
+        .df()
+        .iloc[0]
+    )
     fig, ax = plt.subplots(figsize=(6.4, 4))
     ax.bar(df.campaign_type, df.household_redemption_rate, color=P.BLUE, width=0.5)
     for i, (r, n) in enumerate(zip(df.household_redemption_rate, df.households_targeted, strict=True)):
@@ -233,7 +241,13 @@ def demographics_coverage(con) -> dict:
             ax.text(i, v * 1.02, fmt.format(v), ha="center", va="bottom", fontsize=9, color=P.INK)
         ax.set_title(title, fontsize=10)
         ax.set_ylim(0, max(vals) * 1.25)
-    fig.suptitle("The 801 households with demographics are not typical", x=0.01, ha="left", fontsize=12, fontweight="semibold")
+    fig.suptitle(
+        "The 801 households with demographics are not typical",
+        x=0.01,
+        ha="left",
+        fontsize=12,
+        fontweight="semibold",
+    )
     fig.tight_layout()
     P.save(fig, "eda_6_demographics_coverage")
     w, wo = df.loc[True], df.loc[False]

@@ -92,8 +92,15 @@ def apply_style() -> None:
 def subtitle(ax, text: str) -> None:
     """Small grey line under the title that states the takeaway or the unit."""
     ax.annotate(
-        text, xy=(0, 1), xycoords="axes fraction", xytext=(0, 8), textcoords="offset points",
-        fontsize=9, color=INK_2, va="bottom", ha="left",
+        text,
+        xy=(0, 1),
+        xycoords="axes fraction",
+        xytext=(0, 8),
+        textcoords="offset points",
+        fontsize=9,
+        color=INK_2,
+        va="bottom",
+        ha="left",
     )
 
 

@@ -31,7 +31,7 @@ def run(name: str, enabled: bool = True, tags: dict | None = None) -> Iterator[o
         return
     for noisy in ("mlflow", "alembic"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
-    mlflow.set_tracking_uri(f"sqlite:///{config.ROOT / 'mlflow.db'}")
+    mlflow.set_tracking_uri(f"sqlite:///{config.OUT / 'mlflow.db'}")
     if mlflow.get_experiment_by_name(EXPERIMENT) is None:
         config.MLFLOW_DIR.mkdir(parents=True, exist_ok=True)
         mlflow.create_experiment(EXPERIMENT, artifact_location=config.MLFLOW_DIR.as_uri())

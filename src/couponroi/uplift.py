@@ -23,9 +23,7 @@ from __future__ import annotations
 
 import json
 import logging
-import warnings
 
-import lightgbm as lgb
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -35,114 +33,11 @@ from scipy import stats
 from . import config, tracking
 from . import plotting as P
 from .causal import list_waves, unit_table
-from .churn import LogitModel
 from .features import FEATURES, features_at
+from .models import LEARNERS, REG_PARAMS, Propensity, _fit, _reg, shrink
 from .warehouse import connect
 
 log = logging.getLogger(__name__)
-
-REG_PARAMS = {
-    "objective": "regression",
-    "learning_rate": 0.03,
-    "n_estimators": 300,
-    "num_leaves": 7,
-    "min_child_samples": 100,
-    "subsample": 0.8,
-    "subsample_freq": 1,
-    "colsample_bytree": 0.8,
-    "reg_lambda": 5.0,
-    "verbose": -1,
-}
-FINAL_PARAMS = {**REG_PARAMS, "n_estimators": 200, "min_child_samples": 200}
-PS_CLIP = (0.05, 0.95)
-
-
-def _reg(params: dict = REG_PARAMS, seed: int = config.SEED) -> lgb.LGBMRegressor:
-    return lgb.LGBMRegressor(**params, random_state=seed)
-
-
-def _fit(model, X: pd.DataFrame, y: np.ndarray):
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        return model.fit(X, y)
-
-
-class Propensity:
-    """P(booklet | features). Logistic regression: smooth, and hard to overfit."""
-
-    def fit(self, X: pd.DataFrame, t: np.ndarray) -> Propensity:
-        self.m = LogitModel().fit(X, t)
-        return self
-
-    def predict(self, X: pd.DataFrame) -> np.ndarray:
-        return np.clip(self.m.predict(X), *PS_CLIP)
-
-
-class TLearner:
-    name = "T-learner"
-
-    def fit(self, X: pd.DataFrame, t: np.ndarray, y: np.ndarray, seed: int = config.SEED) -> TLearner:
-        self.m1 = _fit(_reg(seed=seed), X[t == 1], y[t == 1])
-        self.m0 = _fit(_reg(seed=seed), X[t == 0], y[t == 0])
-        return self
-
-    def predict(self, X: pd.DataFrame) -> np.ndarray:
-        return self.m1.predict(X) - self.m0.predict(X)
-
-
-class XLearner:
-    name = "X-learner"
-
-    def fit(self, X: pd.DataFrame, t: np.ndarray, y: np.ndarray, seed: int = config.SEED) -> XLearner:
-        m1 = _fit(_reg(seed=seed), X[t == 1], y[t == 1])
-        m0 = _fit(_reg(seed=seed), X[t == 0], y[t == 0])
-        d1 = y[t == 1] - m0.predict(X[t == 1])  # recipients: actual minus imputed no-booklet outcome
-        d0 = m1.predict(X[t == 0]) - y[t == 0]  # non-recipients: imputed booklet outcome minus actual
-        self.tau1 = _fit(_reg(FINAL_PARAMS, seed), X[t == 1], d1)
-        self.tau0 = _fit(_reg(FINAL_PARAMS, seed), X[t == 0], d0)
-        self.g = Propensity().fit(X, t)
-        return self
-
-    def predict(self, X: pd.DataFrame) -> np.ndarray:
-        g = self.g.predict(X)
-        return g * self.tau0.predict(X) + (1 - g) * self.tau1.predict(X)
-
-
-class DRLearner:
-    """Doubly robust learner (Kennedy 2020) with K-fold cross-fitting.
-
-    pseudo-outcome  phi = m1(x) - m0(x) + t (y - m1(x)) / e(x) - (1 - t)(y - m0(x)) / (1 - e(x))
-    Each household's phi uses nuisance models fitted on the OTHER folds, so a household
-    never helps predict its own pseudo-outcome. Then regress phi on x.
-    """
-
-    name = "DR-learner"
-
-    def __init__(self, folds: int = 3):
-        self.folds = folds
-
-    def fit(self, X: pd.DataFrame, t: np.ndarray, y: np.ndarray, seed: int = config.SEED) -> DRLearner:
-        rng = np.random.default_rng(seed)
-        fold = rng.integers(0, self.folds, size=len(X))
-        phi = np.zeros(len(X))
-        for k in range(self.folds):
-            tr, te = fold != k, fold == k
-            Xtr, ttr, ytr = X[tr], t[tr], y[tr]
-            m1 = _fit(_reg(seed=seed), Xtr[ttr == 1], ytr[ttr == 1])
-            m0 = _fit(_reg(seed=seed), Xtr[ttr == 0], ytr[ttr == 0])
-            e = Propensity().fit(Xtr, ttr).predict(X[te])
-            mu1, mu0 = m1.predict(X[te]), m0.predict(X[te])
-            phi[te] = mu1 - mu0 + t[te] * (y[te] - mu1) / e - (1 - t[te]) * (y[te] - mu0) / (1 - e)
-        self.final = _fit(_reg(FINAL_PARAMS, seed), X, phi)
-        self.phi_ = phi
-        return self
-
-    def predict(self, X: pd.DataFrame) -> np.ndarray:
-        return self.final.predict(X)
-
-
-LEARNERS = {"T-learner": TLearner, "X-learner": XLearner, "DR-learner": DRLearner}
-
 
 # --------------------------------------------------------------------------- data
 
@@ -184,7 +79,9 @@ def planted_effect(X: pd.DataFrame) -> np.ndarray:
     return 1.0 + 3.0 * (raw - raw.mean()) / raw.std()
 
 
-def semi_synthetic(frame: pd.DataFrame, seeds: tuple[int, ...] = (0, 1, 2), top_share: float = 0.3) -> pd.DataFrame:
+def semi_synthetic(
+    frame: pd.DataFrame, seeds: tuple[int, ...] = (0, 1, 2), top_share: float = 0.3
+) -> pd.DataFrame:
     X = frame[FEATURES].reset_index(drop=True)
     t_real = frame["treated"].to_numpy()
     lo, hi = winsor_bounds(frame["dy"].to_numpy())
@@ -197,7 +94,10 @@ def semi_synthetic(frame: pd.DataFrame, seeds: tuple[int, ...] = (0, 1, 2), top_
     e_real = Propensity().fit(X, t_real).predict(X)
 
     rows = []
-    for scenario, e in [("randomised (like an A/B test)", np.full(len(X), 0.5)), ("targeted (like the real booklets)", e_real)]:
+    for scenario, e in [
+        ("randomised (like an A/B test)", np.full(len(X), 0.5)),
+        ("targeted (like the real booklets)", e_real),
+    ]:
         for seed in seeds:
             rng = np.random.default_rng(seed)
             t = rng.binomial(1, e)
@@ -278,7 +178,11 @@ def calibration_slope(pairs: pd.DataFrame, col: str) -> dict:
     on average; 0 = they carry no information. Used to shrink predictions for targeting."""
     X = sm.add_constant(pairs[[col]].astype(float))
     fit = sm.OLS(pairs["delta"].astype(float), X).fit(cov_type="HC1")
-    return {"slope": float(fit.params[col]), "slope_se": float(fit.bse[col]), "slope_p": float(fit.pvalues[col])}
+    return {
+        "slope": float(fit.params[col]),
+        "slope_se": float(fit.bse[col]),
+        "slope_p": float(fit.pvalues[col]),
+    }
 
 
 def top_share_gain(pairs: pd.DataFrame, col: str, share: float = 0.3, reps: int = 500) -> dict:
@@ -321,7 +225,9 @@ def score_latest(con, frame: pd.DataFrame, learner: str, ate: float, slope: floa
     household gets the average effect, i.e. the model gets no say in who is targeted.
     """
     lo, hi = winsor_bounds(frame["dy"].to_numpy())
-    model = LEARNERS[learner]().fit(frame[FEATURES], frame.treated.to_numpy(), frame.dy.clip(lo, hi).to_numpy())
+    model = LEARNERS[learner]().fit(
+        frame[FEATURES], frame.treated.to_numpy(), frame.dy.clip(lo, hi).to_numpy()
+    )
     last_week = int(con.execute("SELECT max(week) FROM dim_week").fetchone()[0])
     f = features_at(con, last_week)
     f["uplift_raw"] = model.predict(f[FEATURES])
@@ -329,14 +235,19 @@ def score_latest(con, frame: pd.DataFrame, learner: str, ate: float, slope: floa
     center = float(f["uplift_raw"].mean())
     f["uplift"] = shrink(f["uplift_raw"].to_numpy(), ate, lam, center)
     f.attrs["shrinkage"] = lam
-    save_model(model, {"learner": learner, "ate": ate, "shrinkage": lam, "center": center,
-                       "scored_week": last_week, "winsor": [lo, hi], "features": FEATURES})
+    save_model(
+        model,
+        {
+            "learner": learner,
+            "ate": ate,
+            "shrinkage": lam,
+            "center": center,
+            "scored_week": last_week,
+            "winsor": [lo, hi],
+            "features": FEATURES,
+        },
+    )
     return f
-
-
-def shrink(raw: np.ndarray, ate: float, lam: float, center: float) -> np.ndarray:
-    """Pull raw predictions toward the average effect by however much they held up out of time."""
-    return ate + lam * (np.asarray(raw) - center)
 
 
 def save_model(model, meta: dict) -> None:
@@ -351,9 +262,15 @@ def save_model(model, meta: dict) -> None:
 
 
 def _fig_semisynthetic(bench: pd.DataFrame) -> None:
-    agg = bench.groupby(["scenario", "learner"]).agg(
-        share=("policy_share_of_oracle", "mean"), rnd=("random_share_of_oracle", "mean"), rho=("spearman", "mean")
-    ).reset_index()
+    agg = (
+        bench.groupby(["scenario", "learner"])
+        .agg(
+            share=("policy_share_of_oracle", "mean"),
+            rnd=("random_share_of_oracle", "mean"),
+            rho=("spearman", "mean"),
+        )
+        .reset_index()
+    )
     scen = list(dict.fromkeys(bench.scenario))
     learners = list(LEARNERS)
     fig, ax = plt.subplots(figsize=(9, 4.2))
@@ -363,7 +280,9 @@ def _fig_semisynthetic(bench: pd.DataFrame) -> None:
         v = [agg[(agg.scenario == s) & (agg.learner == name)].share.iloc[0] for s in scen]
         ax.bar(x + (i - 1) * (w + 0.02), v, width=w, color=P.SERIES[i], label=name)
         for xi, vi in zip(x, v, strict=True):
-            ax.text(xi + (i - 1) * (w + 0.02), vi + 0.015, f"{vi:.0%}", ha="center", fontsize=8.5, color=P.INK)
+            ax.text(
+                xi + (i - 1) * (w + 0.02), vi + 0.015, f"{vi:.0%}", ha="center", fontsize=8.5, color=P.INK
+            )
     rnd = [agg[agg.scenario == s].rnd.iloc[0] for s in scen]
     for xi, r in zip(x, rnd, strict=True):
         ax.plot([xi - 0.4, xi + 0.4], [r, r], color=P.INK_2, lw=1)
@@ -380,9 +299,19 @@ def _fig_semisynthetic(bench: pd.DataFrame) -> None:
 
 def _fig_out_of_time(pairs: pd.DataFrame, oot: pd.DataFrame, chosen: str) -> None:
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(11.5, 4.3), gridspec_kw={"width_ratios": [1.2, 1]})
-    for col, color, lw in [(chosen, P.BLUE, 2), ("heaviest shoppers", P.ORANGE, 2), ("random", P.NEUTRAL, 1.5)]:
+    for col, color, lw in [
+        (chosen, P.BLUE, 2),
+        ("heaviest shoppers", P.ORANGE, 2),
+        ("random", P.NEUTRAL, 1.5),
+    ]:
         c = uplift_curve(pairs, col)
-        a1.plot(c.share, c.cum_incremental, color=color, lw=lw, label=col if col != chosen else f"{col} (uplift model)")
+        a1.plot(
+            c.share,
+            c.cum_incremental,
+            color=color,
+            lw=lw,
+            label=col if col != chosen else f"{col} (uplift model)",
+        )
     a1.plot([0, 1], [0, pairs.delta.mean()], color=P.INK_2, lw=0.8)
     a1.axhline(0, color=P.AXIS, lw=0.8)
     a1.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
@@ -447,9 +376,21 @@ def run(track: bool = True, chosen: str | None = None) -> dict:
     _fig_semisynthetic(bench)
     _fig_out_of_time(pairs, oot, chosen)
 
-    bench_summary = bench.groupby(["scenario", "learner"])[
-        ["pehe", "spearman", "ate_error", "policy_share_of_oracle", "random_share_of_oracle", "naive_ate_error"]
-    ].mean().round(4).reset_index()
+    bench_summary = (
+        bench.groupby(["scenario", "learner"])[
+            [
+                "pehe",
+                "spearman",
+                "ate_error",
+                "policy_share_of_oracle",
+                "random_share_of_oracle",
+                "naive_ate_error",
+            ]
+        ]
+        .mean()
+        .round(4)
+        .reset_index()
+    )
     chosen_row = oot.set_index("learner").loc[chosen]
     results = {
         "outcome": "change in avg weekly spend ex fuel (campaign weeks minus baseline), winsorised at 1%/99%",
@@ -465,7 +406,9 @@ def run(track: bool = True, chosen: str | None = None) -> dict:
         "uplift_spread_raw_sd": float(scores.uplift_raw.std()),
         "uplift_spread_shrunk_sd": float(scores.uplift.std()),
     }
-    synth = bench_summary[(bench_summary.learner == chosen) & bench_summary.scenario.str.startswith("targeted")].iloc[0]
+    synth = bench_summary[
+        (bench_summary.learner == chosen) & bench_summary.scenario.str.startswith("targeted")
+    ].iloc[0]
     results["headline"] = (
         f"With planted effects and the real (non-random) targeting, the {chosen} captured "
         f"{synth.policy_share_of_oracle:.0%} of the best possible uplift in its top 30% (random: {synth.random_share_of_oracle:.0%}). "
@@ -475,9 +418,16 @@ def run(track: bool = True, chosen: str | None = None) -> dict:
     )
     with tracking.run("uplift", enabled=track, tags={"stage": "uplift"}) as ml:
         if ml:
-            ml.log_params({"chosen_learner": chosen, **{k: v for k, v in REG_PARAMS.items() if k != "verbose"}})
-            ml.log_metrics({"oot_slope": slope, "oot_top30_gain": float(chosen_row.top30_gain),
-                            "synthetic_policy_share": float(synth.policy_share_of_oracle)})
+            ml.log_params(
+                {"chosen_learner": chosen, **{k: v for k, v in REG_PARAMS.items() if k != "verbose"}}
+            )
+            ml.log_metrics(
+                {
+                    "oot_slope": slope,
+                    "oot_top30_gain": float(chosen_row.top30_gain),
+                    "synthetic_policy_share": float(synth.policy_share_of_oracle),
+                }
+            )
             for f in sorted(config.FIG_DIR.glob("uplift_*.png")):
                 ml.log_artifact(str(f), artifact_path="figures")
     (config.RESULTS_DIR / "uplift.json").write_text(json.dumps(results, indent=2, default=float))

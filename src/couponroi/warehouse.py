@@ -42,6 +42,7 @@ def build(
     raw_dir: Path = config.RAW_DIR,
     db_path: Path = config.WAREHOUSE_PATH,
     sql_dir: Path = config.SQL_DIR,
+    report_dir: Path | None = config.RESULTS_DIR,
 ) -> dict:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     if db_path.exists():
@@ -60,8 +61,9 @@ def build(
         con.close()
     failed = [c for c in checks if not c["passed"]]
     report = {"timings_s": timings, "checks": checks}
-    config.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    (config.RESULTS_DIR / "data_quality.json").write_text(json.dumps(report, indent=2, default=str))
+    if report_dir is not None:  # tests build throwaway warehouses and pass None
+        report_dir.mkdir(parents=True, exist_ok=True)
+        (report_dir / "data_quality.json").write_text(json.dumps(report, indent=2, default=str))
     if failed:
         raise AssertionError(f"warehouse checks failed: {failed}")
     return report
@@ -84,14 +86,24 @@ def quality_checks(con: duckdb.DuckDBPyConnection) -> list[dict]:
 
     raw_sales = _one(con, "SELECT round(sum(sales_value), 2) FROM raw_transactions")
     panel_sales = _one(con, "SELECT round(sum(spend), 2) FROM hh_week")
-    check("panel spend reconciles to raw sales", {"raw": raw_sales, "panel": panel_sales}, abs(raw_sales - panel_sales) < 0.01)
+    check(
+        "panel spend reconciles to raw sales",
+        {"raw": raw_sales, "panel": panel_sales},
+        abs(raw_sales - panel_sales) < 0.01,
+    )
 
     hh = _one(con, "SELECT count(*) FROM dim_household")
     weeks = _one(con, "SELECT count(*) FROM dim_week")
     panel = _one(con, "SELECT count(*) FROM hh_week")
-    check("panel is dense (households x weeks)", {"households": hh, "weeks": weeks, "rows": panel}, panel == hh * weeks)
+    check(
+        "panel is dense (households x weeks)",
+        {"households": hh, "weeks": weeks, "rows": panel},
+        panel == hh * weeks,
+    )
 
-    dup = _one(con, "SELECT count(*) FROM (SELECT household_id, week FROM hh_week GROUP BY ALL HAVING count(*) > 1)")
+    dup = _one(
+        con, "SELECT count(*) FROM (SELECT household_id, week FROM hh_week GROUP BY ALL HAVING count(*) > 1)"
+    )
     check("panel has one row per household-week", dup, dup == 0)
 
     # week 1 is one Sunday; week 53 lost Christmas Day. Every other week must be 7 days,
@@ -112,7 +124,8 @@ def quality_checks(con: duckdb.DuckDBPyConnection) -> list[dict]:
     check("redemptions fall inside their campaign window", bad_redemptions, bad_redemptions == 0)
 
     redeemed_unexposed = _one(
-        con, "SELECT count(*) FROM fct_redemptions ANTI JOIN fct_campaign_exposure USING (household_id, campaign_id)"
+        con,
+        "SELECT count(*) FROM fct_redemptions ANTI JOIN fct_campaign_exposure USING (household_id, campaign_id)",
     )
     # not a hard failure: worth knowing, and it is 0 in the real data
     check("only exposed households redeem", redeemed_unexposed, True)

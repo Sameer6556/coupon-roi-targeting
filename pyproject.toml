@@ -29,7 +29,7 @@ dependencies = [
 
 [project.optional-dependencies]
 tracking = ["mlflow>=2.12"]
-app = ["streamlit>=1.36", "plotly>=5.20"]
+app = ["streamlit>=1.50", "plotly>=5.20"]
 api = ["fastapi>=0.110", "uvicorn>=0.29", "pydantic>=2.6"]
 dev = [
     "couponroi[tracking,app,api]",
@@ -49,7 +49,9 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 
 [tool.ruff]
 line-length = 110

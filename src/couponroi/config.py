@@ -24,19 +24,30 @@ def _find_root() -> Path:
     return Path.cwd()
 
 
+def _find_out(root: Path) -> Path:
+    """Where outputs go. Synthetic runs (CI, `make synthetic`) write to build/synthetic so
+    they can never overwrite the real results, models or app bundle."""
+    if os.environ.get("COUPONROI_OUT"):
+        return Path(os.environ["COUPONROI_OUT"]).resolve()
+    if os.environ.get("COUPONROI_SYNTHETIC") == "1":
+        return root / "build" / "synthetic"
+    return root
+
+
 ROOT = _find_root()
+OUT = _find_out(ROOT)
 SQL_DIR = ROOT / "sql"
-DATA_DIR = ROOT / "data"
+EVAL_DIR = ROOT / "eval"
+DATA_DIR = OUT / "data"
 RAW_DIR = DATA_DIR / "raw"
 WAREHOUSE_PATH = DATA_DIR / "warehouse.duckdb"
-REPORTS_DIR = ROOT / "reports"
+REPORTS_DIR = OUT / "reports"
 FIG_DIR = REPORTS_DIR / "figures"
 RESULTS_DIR = REPORTS_DIR / "results"
-ARTIFACTS_DIR = ROOT / "artifacts"
+ARTIFACTS_DIR = OUT / "artifacts"
 MODEL_DIR = ARTIFACTS_DIR / "models"
 APP_DIR = ARTIFACTS_DIR / "app"
-MLFLOW_DIR = ROOT / "mlruns"
-EVAL_DIR = ROOT / "eval"
+MLFLOW_DIR = OUT / "mlruns"
 
 SEED = 42
 

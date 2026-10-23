@@ -1,0 +1,37 @@
+{
+  "learner": "X-learner",
+  "ate": 0.9724971357599133,
+  "shrinkage": 0.9337177094474601,
+  "center": 2.1209283377967454,
+  "scored_week": 53,
+  "winsor": [
+    -68.78419999999998,
+    69.25412380952395
+  ],
+  "features": [
+    "recency_weeks",
+    "spend_4w",
+    "spend_8w",
+    "spend_16w",
+    "trips_4w",
+    "trips_8w",
+    "trips_16w",
+    "active_weeks_8w",
+    "active_weeks_16w",
+    "basket_value_16w",
+    "momentum_4v16",
+    "momentum_8v16",
+    "spend_cv_16w",
+    "spend_slope_rel_16w",
+    "private_share_16w",
+    "promo_share_16w",
+    "discount_share_16w",
+    "buys_fuel_16w",
+    "redemptions_16w",
+    "departments_16w",
+    "categories_16w",
+    "stores_16w",
+    "campaigns_16w",
+    "type_a_16w"
+  ]
+}

@@ -39,7 +39,9 @@ COLORS = {
 
 def load_scored() -> pd.DataFrame:
     up = pd.read_parquet(config.ARTIFACTS_DIR / "uplift_scores_latest.parquet")
-    lapse = pd.read_parquet(config.ARTIFACTS_DIR / "lapse_scores_latest.parquet")[["household_id", "lapse_prob", "is_regular"]]
+    lapse = pd.read_parquet(config.ARTIFACTS_DIR / "lapse_scores_latest.parquet")[
+        ["household_id", "lapse_prob", "is_regular"]
+    ]
     df = up.merge(lapse, on="household_id", how="left")
     # non-regulars have no lapse score; they go to the back of the lapse-risk queue
     df["lapse_rank_score"] = df["lapse_prob"].fillna(-1.0)
@@ -61,11 +63,17 @@ def profit_curve(df: pd.DataFrame, score: str, profit: np.ndarray) -> pd.DataFra
 def holdout_curves(pairs: pd.DataFrame, model_col: str, weeks: float, margin: float, cost: float) -> dict:
     """Realised profit on held-out matched pairs (waves the models never saw)."""
     out = {}
-    for name, col in [("uplift model", model_col), ("heaviest shoppers (current rule)", "heaviest shoppers"), ("random", "random")]:
+    for name, col in [
+        ("uplift model", model_col),
+        ("heaviest shoppers (current rule)", "heaviest shoppers"),
+        ("random", "random"),
+    ]:
         order = np.argsort(-pairs[col].to_numpy(), kind="stable")
         d = pairs["delta"].to_numpy()[order]
         prof = d * weeks * margin - cost
-        out[name] = pd.DataFrame({"share": np.arange(1, len(d) + 1) / len(d), "profit_per_1000": 1000 * np.cumsum(prof) / len(d)})
+        out[name] = pd.DataFrame(
+            {"share": np.arange(1, len(d) + 1) / len(d), "profit_per_1000": 1000 * np.cumsum(prof) / len(d)}
+        )
     return out
 
 
@@ -114,7 +122,9 @@ def run(biz: config.BusinessConfig = config.SETTINGS.business) -> dict:
     hold = holdout_curves(pairs, uplift_res["chosen_learner"], weeks, biz.gross_margin, biz.cost_per_contact)
     sens = sensitivity(df, weeks, biz)
 
-    mailing = df.loc[df.expected_profit > 0, ["household_id", "uplift", "expected_profit", "lapse_prob", "spend_16w"]]
+    mailing = df.loc[
+        df.expected_profit > 0, ["household_id", "uplift", "expected_profit", "lapse_prob", "spend_16w"]
+    ]
     mailing = mailing.sort_values("expected_profit", ascending=False)
     mailing.to_csv(config.RESULTS_DIR / "next_wave_mailing_list.csv", index=False)
     df.to_parquet(config.ARTIFACTS_DIR / "policy_scored.parquet", index=False)
@@ -124,8 +134,12 @@ def run(biz: config.BusinessConfig = config.SETTINGS.business) -> dict:
     _fig_sensitivity(sens, biz)
 
     results = {
-        "assumptions": {"gross_margin": biz.gross_margin, "cost_per_booklet": biz.cost_per_contact, "campaign_weeks": weeks,
-                        "note": "simulated: the data has no margins or costs"},
+        "assumptions": {
+            "gross_margin": biz.gross_margin,
+            "cost_per_booklet": biz.cost_per_contact,
+            "campaign_weeks": weeks,
+            "note": "simulated: the data has no margins or costs",
+        },
         "eligible_households": n,
         "budget_share_compared": budget_share,
         "profit_at_budget": at_budget,
@@ -137,7 +151,9 @@ def run(biz: config.BusinessConfig = config.SETTINGS.business) -> dict:
             float(band["lo"].cum_profit.iloc[best_k - 1]) if best_k else 0.0,
             float(band["hi"].cum_profit.iloc[best_k - 1]) if best_k else 0.0,
         ],
-        "holdout_profit_per_1000_at_30pct": {k: float(v.loc[(v.share - 0.3).abs().idxmin(), "profit_per_1000"]) for k, v in hold.items()},
+        "holdout_profit_per_1000_at_30pct": {
+            k: float(v.loc[(v.share - 0.3).abs().idxmin(), "profit_per_1000"]) for k, v in hold.items()
+        },
         "holdout_profit_per_1000_all": {k: float(v.profit_per_1000.iloc[-1]) for k, v in hold.items()},
         "sensitivity": sens.round(4).to_dict("records"),
     }
@@ -160,17 +176,27 @@ def run(biz: config.BusinessConfig = config.SETTINGS.business) -> dict:
 
 def _fig_expected(curves: dict, band: dict, n: int, k_budget: int, best_k: int) -> None:
     fig, ax = plt.subplots(figsize=(9, 4.6))
-    ax.fill_between(band["lo"].share, band["lo"].cum_profit, band["hi"].cum_profit, color=P.BLUE, alpha=0.08, lw=0)
+    ax.fill_between(
+        band["lo"].share, band["lo"].cum_profit, band["hi"].cum_profit, color=P.BLUE, alpha=0.08, lw=0
+    )
     for name, c in curves.items():
-        ax.plot(c.share, c.cum_profit, color=COLORS[name], lw=2.2 if name == "uplift model" else 1.6, label=name)
+        ax.plot(
+            c.share, c.cum_profit, color=COLORS[name], lw=2.2 if name == "uplift model" else 1.6, label=name
+        )
     ax.axhline(0, color=P.INK_2, lw=0.9)
     ax.axvline(k_budget / n, color=P.MUTED, lw=0.8)
     ax.text(k_budget / n, ax.get_ylim()[1] * 0.97, " current budget", fontsize=8.5, color=P.INK_2, va="top")
     if best_k:
         y = curves["uplift model"].cum_profit.iloc[best_k - 1]
         ax.plot(best_k / n, y, "o", color=P.BLUE, mec=P.SURFACE, mew=2, ms=9)
-        ax.annotate(f"stop here: {best_k:,} booklets\n{P.money(y)} simulated profit", (best_k / n, y), xytext=(12, 10),
-                    textcoords="offset points", fontsize=8.5, color=P.INK)
+        ax.annotate(
+            f"stop here: {best_k:,} booklets\n{P.money(y)} simulated profit",
+            (best_k / n, y),
+            xytext=(12, 10),
+            textcoords="offset points",
+            fontsize=8.5,
+            color=P.INK,
+        )
     ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: P.money(v)))
     ax.set_xlabel("share of active households mailed, best-ranked first")
@@ -185,21 +211,31 @@ def _fig_expected(curves: dict, band: dict, n: int, k_budget: int, best_k: int) 
 def _fig_holdout(hold: dict) -> None:
     fig, ax = plt.subplots(figsize=(8.4, 4.3))
     for name, c in hold.items():
-        ax.plot(c.share, c.profit_per_1000, color=COLORS[name], lw=2.2 if name == "uplift model" else 1.6, label=name)
+        ax.plot(
+            c.share,
+            c.profit_per_1000,
+            color=COLORS[name],
+            lw=2.2 if name == "uplift model" else 1.6,
+            label=name,
+        )
     ax.axhline(0, color=P.INK_2, lw=0.9)
     ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: P.money(v)))
     ax.set_xlabel("share of recipients kept on the list, ranked by each score")
     ax.set_ylabel("realised profit per 1,000 households")
     ax.set_title("Reality check on held-out waves (noisy)")
-    P.subtitle(ax, "same profit formula, but using what matched pairs actually spent; waves the models never saw")
+    P.subtitle(
+        ax, "same profit formula, but using what matched pairs actually spent; waves the models never saw"
+    )
     ax.legend(fontsize=8.5)
     ax.grid(axis="x")
     P.save(fig, "policy_2_holdout_profit")
 
 
 def _fig_sensitivity(sens: pd.DataFrame, biz: config.BusinessConfig) -> None:
-    piv = sens.pivot(index="margin", columns="cost", values="profit_per_1000_eligible").sort_index(ascending=False)
+    piv = sens.pivot(index="margin", columns="cost", values="profit_per_1000_eligible").sort_index(
+        ascending=False
+    )
     share = sens.pivot(index="margin", columns="cost", values="share_to_mail").sort_index(ascending=False)
     fig, ax = plt.subplots(figsize=(7.6, 4.4))
     vmax = float(np.abs(piv.to_numpy()).max()) or 1.0
@@ -216,5 +252,7 @@ def _fig_sensitivity(sens: pd.DataFrame, biz: config.BusinessConfig) -> None:
     ax.set_ylabel("gross margin")
     ax.grid(False)
     ax.set_title("Sensitivity: profit per 1,000 households at the best list size")
-    P.subtitle(ax, f"simulated; base case = {biz.gross_margin:.0%} margin, ${biz.cost_per_contact:.2f} per booklet")
+    P.subtitle(
+        ax, f"simulated; base case = {biz.gross_margin:.0%} margin, ${biz.cost_per_contact:.2f} per booklet"
+    )
     P.save(fig, "policy_3_sensitivity")

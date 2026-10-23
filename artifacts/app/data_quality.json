@@ -1,0 +1,68 @@
+{
+  "timings_s": {
+    "01_dim_week.sql": 0.35,
+    "02_dim_product.sql": 0.15,
+    "03_fct_transactions.sql": 4.82,
+    "04_campaigns.sql": 0.03,
+    "05_dim_household.sql": 0.1,
+    "06_hh_week.sql": 0.35,
+    "07_semantic_views.sql": 0.01
+  },
+  "checks": [
+    {
+      "check": "fct_transactions keeps every raw line",
+      "value": {
+        "raw": 1469307,
+        "fct": 1469307
+      },
+      "passed": true
+    },
+    {
+      "check": "panel spend reconciles to raw sales",
+      "value": {
+        "raw": 4596039.58,
+        "panel": 4596039.58
+      },
+      "passed": true
+    },
+    {
+      "check": "panel is dense (households x weeks)",
+      "value": {
+        "households": 2469,
+        "weeks": 53,
+        "rows": 130857
+      },
+      "passed": true
+    },
+    {
+      "check": "panel has one row per household-week",
+      "value": 0,
+      "passed": true
+    },
+    {
+      "check": "weeks 2-52 have exactly 7 local days",
+      "value": 0,
+      "passed": true
+    },
+    {
+      "check": "every exposed household shopped",
+      "value": 0,
+      "passed": true
+    },
+    {
+      "check": "redemptions fall inside their campaign window",
+      "value": 0,
+      "passed": true
+    },
+    {
+      "check": "only exposed households redeem",
+      "value": 0,
+      "passed": true
+    },
+    {
+      "check": "share of households with demographics",
+      "value": 0.324,
+      "passed": true
+    }
+  ]
+}

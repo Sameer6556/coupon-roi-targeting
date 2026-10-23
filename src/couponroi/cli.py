@@ -69,9 +69,39 @@ def _run_step(step: str, args: argparse.Namespace) -> None:
         raise ValueError(step)
 
 
+def _ask(question: str | None, evaluate: bool) -> int:
+    """`couponroi ask "question"` or `couponroi ask-eval` (needs an LLM endpoint, see ask.py)."""
+    import json
+
+    from . import ask, config
+
+    con = ask.connect_readonly()
+    client = ask.LLMClient()
+    if evaluate:
+        res = ask.evaluate(con, client)
+        (config.RESULTS_DIR / "ask_eval.json").write_text(json.dumps(res, indent=2, default=str))
+        print(
+            f"execution accuracy for {res['model']}: {res['execution_accuracy']:.0%} on {res['n']} questions"
+        )
+        for it in res["items"]:
+            print(f"  {'ok ' if it['correct'] else 'NO '} {it['id']:>2} {it['question']}")
+        return 0
+    res = ask.ask(question or "", con, client)
+    if res.error:
+        print(res.error)
+        return 1
+    print(res.sql, "\n")
+    print(res.data.head(20).to_string(index=False), "\n")
+    print(res.summary)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="couponroi", description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("step", choices=STEPS + ["all"])
+    parser = argparse.ArgumentParser(
+        prog="couponroi", description=__doc__, formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument("step", choices=STEPS + ["all", "ask", "ask-eval"])
+    parser.add_argument("question", nargs="?", help="for `ask`: the question in plain English")
     parser.add_argument("--synthetic", action="store_true", help="use generated data (fast, for CI)")
     parser.add_argument("--no-mlflow", action="store_true", help="skip MLflow logging")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -84,7 +114,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     os.environ.setdefault("MLFLOW_DISABLE_AGENT_HINT", "1")
     if args.synthetic:
+        # must be set before couponroi.config is imported: it moves all outputs to build/synthetic
         os.environ["COUPONROI_SYNTHETIC"] = "1"
+    if args.step in ("ask", "ask-eval"):
+        return _ask(args.question, evaluate=args.step == "ask-eval")
 
     steps = STEPS if args.step == "all" else [args.step]
     for step in steps:

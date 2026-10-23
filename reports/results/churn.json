@@ -44,7 +44,10 @@
       "brier": NaN,
       "ece": NaN,
       "brier_uncalibrated": NaN,
-      "ece_uncalibrated": NaN
+      "ece_uncalibrated": NaN,
+      "ece_isotonic": NaN,
+      "platt_a": NaN,
+      "platt_b": NaN
     },
     {
       "test_cutoff": 37,
@@ -62,7 +65,10 @@
       "brier": 0.0606,
       "ece": 0.0143,
       "brier_uncalibrated": NaN,
-      "ece_uncalibrated": NaN
+      "ece_uncalibrated": NaN,
+      "ece_isotonic": NaN,
+      "platt_a": NaN,
+      "platt_b": NaN
     },
     {
       "test_cutoff": 37,
@@ -77,10 +83,13 @@
       "precision_at_k": 0.2113,
       "recall_at_k": 0.2941,
       "lift_at_k": 2.9495,
-      "brier": 0.0604,
-      "ece": 0.0231,
+      "brier": 0.0599,
+      "ece": 0.023,
       "brier_uncalibrated": 0.0599,
-      "ece_uncalibrated": 0.0232
+      "ece_uncalibrated": 0.0232,
+      "ece_isotonic": 0.0231,
+      "platt_a": 0.9462,
+      "platt_b": -0.1453
     },
     {
       "test_cutoff": 41,
@@ -98,7 +107,10 @@
       "brier": NaN,
       "ece": NaN,
       "brier_uncalibrated": NaN,
-      "ece_uncalibrated": NaN
+      "ece_uncalibrated": NaN,
+      "ece_isotonic": NaN,
+      "platt_a": NaN,
+      "platt_b": NaN
     },
     {
       "test_cutoff": 41,
@@ -116,7 +128,10 @@
       "brier": 0.0653,
       "ece": 0.0133,
       "brier_uncalibrated": NaN,
-      "ece_uncalibrated": NaN
+      "ece_uncalibrated": NaN,
+      "ece_isotonic": NaN,
+      "platt_a": NaN,
+      "platt_b": NaN
     },
     {
       "test_cutoff": 41,
@@ -131,10 +146,13 @@
       "precision_at_k": 0.3191,
       "recall_at_k": 0.3982,
       "lift_at_k": 3.9823,
-      "brier": 0.0637,
-      "ece": 0.0086,
+      "brier": 0.0639,
+      "ece": 0.0072,
       "brier_uncalibrated": 0.0644,
-      "ece_uncalibrated": 0.0152
+      "ece_uncalibrated": 0.0152,
+      "ece_isotonic": 0.0086,
+      "platt_a": 1.1182,
+      "platt_b": 0.3601
     },
     {
       "test_cutoff": 45,
@@ -152,7 +170,10 @@
       "brier": NaN,
       "ece": NaN,
       "brier_uncalibrated": NaN,
-      "ece_uncalibrated": NaN
+      "ece_uncalibrated": NaN,
+      "ece_isotonic": NaN,
+      "platt_a": NaN,
+      "platt_b": NaN
     },
     {
       "test_cutoff": 45,
@@ -170,7 +191,10 @@
       "brier": 0.0638,
       "ece": 0.0155,
       "brier_uncalibrated": NaN,
-      "ece_uncalibrated": NaN
+      "ece_uncalibrated": NaN,
+      "ece_isotonic": NaN,
+      "platt_a": NaN,
+      "platt_b": NaN
     },
     {
       "test_cutoff": 45,
@@ -185,10 +209,13 @@
       "precision_at_k": 0.3169,
       "recall_at_k": 0.3947,
       "lift_at_k": 3.9529,
-      "brier": 0.0653,
-      "ece": 0.0144,
+      "brier": 0.0659,
+      "ece": 0.0117,
       "brier_uncalibrated": 0.066,
-      "ece_uncalibrated": 0.0153
+      "ece_uncalibrated": 0.0153,
+      "ece_isotonic": 0.0144,
+      "platt_a": 0.9923,
+      "platt_b": 0.0691
     }
   ],
   "summary": [
@@ -199,10 +226,11 @@
       "precision_at_k": 0.2824,
       "recall_at_k": 0.3624,
       "lift_at_k": 3.6282,
-      "brier": 0.0631,
-      "ece": 0.0154,
+      "brier": 0.0632,
+      "ece": 0.014,
       "brier_uncalibrated": 0.0634,
-      "ece_uncalibrated": 0.0179
+      "ece_uncalibrated": 0.0179,
+      "ece_isotonic": 0.0154
     },
     {
       "model": "logistic regression",
@@ -214,7 +242,8 @@
       "brier": 0.0632,
       "ece": 0.0144,
       "brier_uncalibrated": NaN,
-      "ece_uncalibrated": NaN
+      "ece_uncalibrated": NaN,
+      "ece_isotonic": NaN
     },
     {
       "model": "rule: recent spend drop",
@@ -226,7 +255,8 @@
       "brier": NaN,
       "ece": NaN,
       "brier_uncalibrated": NaN,
-      "ece_uncalibrated": NaN
+      "ece_uncalibrated": NaN,
+      "ece_isotonic": NaN
     }
   ],
   "final_model": {

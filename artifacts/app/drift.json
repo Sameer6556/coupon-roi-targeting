@@ -1,0 +1,183 @@
+{
+  "reference_cutoff": 17,
+  "current_cutoff": 53,
+  "n_reference": 1366,
+  "n_current": 1416,
+  "table": [
+    {
+      "feature": "type_a_16w",
+      "psi": 0.9829,
+      "ref_mean": 0.2138,
+      "cur_mean": 0.6857,
+      "status": "drifted"
+    },
+    {
+      "feature": "campaigns_16w",
+      "psi": 0.8327,
+      "ref_mean": 0.4832,
+      "cur_mean": 1.5445,
+      "status": "drifted"
+    },
+    {
+      "feature": "redemptions_16w",
+      "psi": 0.2906,
+      "ref_mean": 0.0791,
+      "cur_mean": 0.6504,
+      "status": "drifted"
+    },
+    {
+      "feature": "spend_slope_rel_16w",
+      "psi": 0.0446,
+      "ref_mean": -0.0055,
+      "cur_mean": 0.0073,
+      "status": "stable"
+    },
+    {
+      "feature": "momentum_8v16",
+      "psi": 0.0316,
+      "ref_mean": 0.981,
+      "cur_mean": 1.0234,
+      "status": "stable"
+    },
+    {
+      "feature": "momentum_4v16",
+      "psi": 0.0296,
+      "ref_mean": 0.9675,
+      "cur_mean": 1.0378,
+      "status": "stable"
+    },
+    {
+      "feature": "promo_share_16w",
+      "psi": 0.0242,
+      "ref_mean": 0.2182,
+      "cur_mean": 0.2065,
+      "status": "stable"
+    },
+    {
+      "feature": "spend_cv_16w",
+      "psi": 0.024,
+      "ref_mean": 1.0101,
+      "cur_mean": 1.0323,
+      "status": "stable"
+    },
+    {
+      "feature": "discount_share_16w",
+      "psi": 0.0213,
+      "ref_mean": 0.1549,
+      "cur_mean": 0.149,
+      "status": "stable"
+    },
+    {
+      "feature": "spend_4w",
+      "psi": 0.0193,
+      "ref_mean": 50.7013,
+      "cur_mean": 54.9495,
+      "status": "stable"
+    },
+    {
+      "feature": "trips_16w",
+      "psi": 0.0159,
+      "ref_mean": 30.7848,
+      "cur_mean": 29.7931,
+      "status": "stable"
+    },
+    {
+      "feature": "active_weeks_16w",
+      "psi": 0.0133,
+      "ref_mean": 12.5505,
+      "cur_mean": 12.4972,
+      "status": "stable"
+    },
+    {
+      "feature": "basket_value_16w",
+      "psi": 0.0125,
+      "ref_mean": 30.9299,
+      "cur_mean": 31.4493,
+      "status": "stable"
+    },
+    {
+      "feature": "categories_16w",
+      "psi": 0.011,
+      "ref_mean": 74.59,
+      "cur_mean": 74.6709,
+      "status": "stable"
+    },
+    {
+      "feature": "trips_4w",
+      "psi": 0.0105,
+      "ref_mean": 7.6567,
+      "cur_mean": 7.3856,
+      "status": "stable"
+    },
+    {
+      "feature": "private_share_16w",
+      "psi": 0.0099,
+      "ref_mean": 0.2345,
+      "cur_mean": 0.2369,
+      "status": "stable"
+    },
+    {
+      "feature": "recency_weeks",
+      "psi": 0.0095,
+      "ref_mean": 0.3587,
+      "cur_mean": 0.3898,
+      "status": "stable"
+    },
+    {
+      "feature": "spend_8w",
+      "psi": 0.009,
+      "ref_mean": 51.4442,
+      "cur_mean": 53.6848,
+      "status": "stable"
+    },
+    {
+      "feature": "stores_16w",
+      "psi": 0.0076,
+      "ref_mean": 2.9143,
+      "cur_mean": 3.0621,
+      "status": "stable"
+    },
+    {
+      "feature": "trips_8w",
+      "psi": 0.0055,
+      "ref_mean": 15.3565,
+      "cur_mean": 14.8256,
+      "status": "stable"
+    },
+    {
+      "feature": "departments_16w",
+      "psi": 0.0042,
+      "ref_mean": 9.3463,
+      "cur_mean": 9.4802,
+      "status": "stable"
+    },
+    {
+      "feature": "spend_16w",
+      "psi": 0.004,
+      "ref_mean": 51.9732,
+      "cur_mean": 52.1302,
+      "status": "stable"
+    },
+    {
+      "feature": "buys_fuel_16w",
+      "psi": 0.0019,
+      "ref_mean": 0.4253,
+      "cur_mean": 0.447,
+      "status": "stable"
+    },
+    {
+      "feature": "active_weeks_8w",
+      "psi": 0.0013,
+      "ref_mean": 6.2504,
+      "cur_mean": 6.2521,
+      "status": "stable"
+    }
+  ],
+  "drifted": [
+    "type_a_16w",
+    "campaigns_16w",
+    "redemptions_16w"
+  ],
+  "watch": [],
+  "headline": "3 features drifted (PSI > 0.25) and 0 are worth watching between week 17 and week 53; the biggest shift is Type A booklets received, last 16 weeks (PSI 0.98)."
+}

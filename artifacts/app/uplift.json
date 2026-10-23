@@ -1,0 +1,141 @@
+{
+  "outcome": "change in avg weekly spend ex fuel (campaign weeks minus baseline), winsorised at 1%/99%",
+  "n_household_waves": 6358,
+  "waves_used": [
+    2,
+    3,
+    4
+  ],
+  "semi_synthetic": [
+    {
+      "scenario": "randomised (like an A/B test)",
+      "learner": "DR-learner",
+      "pehe": 3.5915,
+      "spearman": 0.6066,
+      "ate_error": 0.0457,
+      "policy_share_of_oracle": 0.6768,
+      "random_share_of_oracle": 0.2006,
+      "naive_ate_error": 0.2332
+    },
+    {
+      "scenario": "randomised (like an A/B test)",
+      "learner": "T-learner",
+      "pehe": 4.2641,
+      "spearman": 0.5569,
+      "ate_error": 0.0949,
+      "policy_share_of_oracle": 0.6482,
+      "random_share_of_oracle": 0.2006,
+      "naive_ate_error": 0.2332
+    },
+    {
+      "scenario": "randomised (like an A/B test)",
+      "learner": "X-learner",
+      "pehe": 2.9598,
+      "spearman": 0.6612,
+      "ate_error": 0.0563,
+      "policy_share_of_oracle": 0.7392,
+      "random_share_of_oracle": 0.2006,
+      "naive_ate_error": 0.2332
+    },
+    {
+      "scenario": "targeted (like the real booklets)",
+      "learner": "DR-learner",
+      "pehe": 5.1769,
+      "spearman": 0.4422,
+      "ate_error": 0.2614,
+      "policy_share_of_oracle": 0.5346,
+      "random_share_of_oracle": 0.2006,
+      "naive_ate_error": -0.0104
+    },
+    {
+      "scenario": "targeted (like the real booklets)",
+      "learner": "T-learner",
+      "pehe": 4.3368,
+      "spearman": 0.5726,
+      "ate_error": 0.5119,
+      "policy_share_of_oracle": 0.6518,
+      "random_share_of_oracle": 0.2006,
+      "naive_ate_error": -0.0104
+    },
+    {
+      "scenario": "targeted (like the real booklets)",
+      "learner": "X-learner",
+      "pehe": 2.6247,
+      "spearman": 0.6706,
+      "ate_error": 0.2574,
+      "policy_share_of_oracle": 0.7385,
+      "random_share_of_oracle": 0.2006,
+      "naive_ate_error": -0.0104
+    }
+  ],
+  "out_of_time": [
+    {
+      "learner": "T-learner",
+      "slope": 0.2303,
+      "slope_se": 0.1845,
+      "slope_p": 0.2119,
+      "top30_effect": -0.1385,
+      "all_effect": 0.3653,
+      "top30_gain": -0.5038,
+      "top30_gain_lo": -4.6035,
+      "top30_gain_hi": 3.1736,
+      "n_pairs": 641
+    },
+    {
+      "learner": "X-learner",
+      "slope": 0.9337,
+      "slope_se": 0.3645,
+      "slope_p": 0.0104,
+      "top30_effect": 4.0,
+      "all_effect": 0.3653,
+      "top30_gain": 3.6347,
+      "top30_gain_lo": -0.4041,
+      "top30_gain_hi": 7.3004,
+      "n_pairs": 641
+    },
+    {
+      "learner": "DR-learner",
+      "slope": 0.2208,
+      "slope_se": 0.2195,
+      "slope_p": 0.3145,
+      "top30_effect": 0.4653,
+      "all_effect": 0.3653,
+      "top30_gain": 0.0999,
+      "top30_gain_lo": -3.3484,
+      "top30_gain_hi": 3.6269,
+      "n_pairs": 641
+    },
+    {
+      "learner": "heaviest shoppers",
+      "slope": NaN,
+      "slope_se": NaN,
+      "slope_p": NaN,
+      "top30_effect": 0.9255,
+      "all_effect": 0.3653,
+      "top30_gain": 0.5601,
+      "top30_gain_lo": -3.8937,
+      "top30_gain_hi": 4.7564,
+      "n_pairs": 641
+    },
+    {
+      "learner": "random",
+      "slope": NaN,
+      "slope_se": NaN,
+      "slope_p": NaN,
+      "top30_effect": 0.2334,
+      "all_effect": 0.3653,
+      "top30_gain": -0.1319,
+      "top30_gain_lo": -3.5856,
+      "top30_gain_hi": 3.4978,
+      "n_pairs": 641
+    }
+  ],
+  "chosen_learner": "X-learner",
+  "shrinkage_slope": 0.9337177094474601,
+  "shrinkage_used": 0.9337177094474601,
+  "ate_used": 0.9724971357599133,
+  "scored_households": 2227,
+  "uplift_spread_raw_sd": 3.8359594881328993,
+  "uplift_spread_shrunk_sd": 3.5817033067927024,
+  "headline": "With planted effects and the real (non-random) targeting, the X-learner captured 74% of the best possible uplift in its top 30% (random: 20%). On real held-out waves its predictions had a calibration slope of 0.93 (top-30% gain +3.63 $/week, 95% CI -0.40 to +7.30), so predictions are shrunk toward the average effect before they drive any targeting."
+}

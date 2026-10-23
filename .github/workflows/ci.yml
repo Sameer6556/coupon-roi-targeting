@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check src tests app api
+
+      - name: Unit tests (leakage, SQL guardrails, matching, metrics, API)
+        run: pytest
+
+      - name: Whole pipeline on synthetic data (no download needed)
+        run: couponroi all --synthetic --no-mlflow
+
+      - name: App pages render
+        run: |
+          python - <<'EOF'
+          from streamlit.testing.v1 import AppTest
+          import glob
+          for page in ["app/Home.py", *sorted(glob.glob("app/pages/*.py"))]:
+              at = AppTest.from_file(page, default_timeout=120)
+              at.run()
+              assert not at.exception, (page, [e.value for e in at.exception])
+              print("ok", page)
+          EOF
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the API image (uses the committed model artifacts)
+        run: docker build -t coupon-roi-api .
+      - name: Smoke test
+        run: |
+          docker run -d -p 8000:8000 --name api coupon-roi-api
+          for i in $(seq 1 30); do curl -sf localhost:8000/health && break; sleep 2; done
+          curl -sf localhost:8000/households/465

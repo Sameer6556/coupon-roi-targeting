@@ -1,0 +1,20 @@
+{"id": 1, "question": "How many households are in the data?", "sql": "SELECT count(*) AS households FROM households"}
+{"id": 2, "question": "What was total spend excluding fuel across all households for the year?", "sql": "SELECT round(sum(spend_ex_fuel), 2) AS total_spend FROM household_week"}
+{"id": 3, "question": "Which week had the highest total spend excluding fuel?", "sql": "SELECT week, round(sum(spend_ex_fuel), 2) AS spend FROM household_week GROUP BY week ORDER BY spend DESC LIMIT 1"}
+{"id": 4, "question": "How many campaigns of each type were there?", "sql": "SELECT campaign_type, count(*) AS campaigns FROM campaigns GROUP BY campaign_type"}
+{"id": 5, "question": "Which campaign was sent to the most households, and how many?", "sql": "SELECT campaign_id, households_targeted FROM campaigns ORDER BY households_targeted DESC LIMIT 1"}
+{"id": 6, "question": "What share of households have demographic data?", "sql": "SELECT round(avg(CAST(has_demographics AS INTEGER)), 2) AS share FROM households"}
+{"id": 7, "question": "What are the top 5 departments by total spend?", "sql": "SELECT department, round(sum(spend), 2) AS spend FROM department_week GROUP BY department ORDER BY spend DESC LIMIT 5"}
+{"id": 8, "question": "What is the average spend excluding fuel in weeks when a household shopped?", "sql": "SELECT round(avg(spend_ex_fuel), 2) AS avg_weekly_spend FROM household_week WHERE is_active"}
+{"id": 9, "question": "How many households received at least one Type A campaign?", "sql": "SELECT count(DISTINCT household_id) AS households FROM campaign_exposure WHERE campaign_type = 'Type A'"}
+{"id": 10, "question": "For each campaign type, what share of targeted households redeemed at least one coupon?", "sql": "SELECT campaign_type, round(sum(redeeming_households) / sum(households_targeted), 2) AS redemption_rate FROM campaigns GROUP BY campaign_type"}
+{"id": 11, "question": "How many coupons were redeemed in each month?", "sql": "SELECT date_trunc('month', redemption_date) AS month, count(*) AS redemptions FROM redemptions GROUP BY month ORDER BY month"}
+{"id": 12, "question": "Which 10 regular shoppers have the highest risk of going quiet?", "sql": "SELECT household_id, round(lapse_prob, 2) AS lapse_prob FROM household_scores WHERE lapse_prob IS NOT NULL ORDER BY lapse_prob DESC LIMIT 10"}
+{"id": 13, "question": "How many households does the model recommend sending the next booklet to?", "sql": "SELECT count(*) AS households FROM household_scores WHERE mail"}
+{"id": 14, "question": "What is the total simulated profit if we mail only the households the model recommends?", "sql": "SELECT round(sum(expected_profit), 2) AS profit FROM household_scores WHERE expected_profit > 0"}
+{"id": 15, "question": "How many households shopped in each week?", "sql": "SELECT week, sum(CAST(is_active AS INTEGER)) AS active_households FROM household_week GROUP BY week ORDER BY week"}
+{"id": 16, "question": "What is the average yearly spend excluding fuel by income band, for households with demographics?", "sql": "SELECT income, round(avg(total_spend_ex_fuel), 2) AS avg_spend FROM households WHERE has_demographics GROUP BY income"}
+{"id": 17, "question": "How much was spent on store-brand items in total?", "sql": "SELECT round(sum(private_label_spend), 2) AS private_label_spend FROM household_week"}
+{"id": 18, "question": "Which 5 households spent the most in total including fuel?", "sql": "SELECT household_id, round(total_spend, 2) AS total_spend FROM households ORDER BY total_spend DESC LIMIT 5"}
+{"id": 19, "question": "What share of non-fuel spend was on promoted items (on display or in the mailer)?", "sql": "SELECT round(sum(promo_spend) / sum(spend_ex_fuel), 2) AS promo_share FROM household_week"}
+{"id": 20, "question": "Compare average weekly spend excluding fuel for households that got at least one Type A booklet versus those that never did.", "sql": "SELECT h.type_a_received > 0 AS got_type_a, round(avg(w.spend_ex_fuel), 2) AS avg_weekly_spend FROM household_week w JOIN households h USING (household_id) GROUP BY got_type_a"}

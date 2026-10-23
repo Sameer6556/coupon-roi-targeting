@@ -121,7 +121,9 @@ def validate(tables: dict[str, pd.DataFrame]) -> list[ValidationIssue]:
             continue
         for col, kind in schema.items():
             if not _kind_ok(df[col], kind):
-                issues.append(ValidationIssue(name, "dtype", f"{col} is {df[col].dtype}, expected {kind}", "error"))
+                issues.append(
+                    ValidationIssue(name, "dtype", f"{col} is {df[col].dtype}, expected {kind}", "error")
+                )
         if len(df) == 0:
             issues.append(ValidationIssue(name, "rows", "table is empty", "error"))
         keys = UNIQUE_KEYS.get(name)
@@ -133,11 +135,15 @@ def validate(tables: dict[str, pd.DataFrame]) -> list[ValidationIssue]:
     if tx is not None and "sales_value" in tx:
         neg = int((tx["sales_value"] < 0).sum())
         if neg:
-            issues.append(ValidationIssue("transactions", "sales_value>=0", f"{neg} negative rows", "warning"))
+            issues.append(
+                ValidationIssue("transactions", "sales_value>=0", f"{neg} negative rows", "warning")
+            )
         zero_qty = int((tx["quantity"] == 0).sum())
         if zero_qty:
             issues.append(
-                ValidationIssue("transactions", "quantity>0", f"{zero_qty} rows with quantity 0 (kept)", "warning")
+                ValidationIssue(
+                    "transactions", "quantity>0", f"{zero_qty} rows with quantity 0 (kept)", "warning"
+                )
             )
     prods = tables.get("products")
     if tx is not None and prods is not None:
@@ -155,9 +161,13 @@ def validate(tables: dict[str, pd.DataFrame]) -> list[ValidationIssue]:
     if camps is not None and desc is not None:
         orphan = set(camps["campaign_id"]) - set(desc["campaign_id"])
         if orphan:
-            issues.append(ValidationIssue("campaigns", "campaign fk", f"unknown campaigns {sorted(orphan)}", "error"))
+            issues.append(
+                ValidationIssue("campaigns", "campaign fk", f"unknown campaigns {sorted(orphan)}", "error")
+            )
     if desc is not None and (desc["end_date"] < desc["start_date"]).any():
-        issues.append(ValidationIssue("campaign_descriptions", "dates", "end_date before start_date", "error"))
+        issues.append(
+            ValidationIssue("campaign_descriptions", "dates", "end_date before start_date", "error")
+        )
     return issues
 
 

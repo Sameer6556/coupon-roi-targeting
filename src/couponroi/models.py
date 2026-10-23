@@ -39,6 +39,10 @@ REG_PARAMS = {
     "colsample_bytree": 0.8,
     "reg_lambda": 5.0,
     "verbose": -1,
+    # same data + same params -> same model, whatever the thread count (LightGBM is not
+    # deterministic by default; reruns drifted in the 3rd decimal before this)
+    "deterministic": True,
+    "force_row_wise": True,
 }
 FINAL_PARAMS = {**REG_PARAMS, "n_estimators": 200, "min_child_samples": 200}
 PS_CLIP = (0.05, 0.95)

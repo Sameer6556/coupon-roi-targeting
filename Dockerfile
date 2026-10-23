@@ -1,7 +1,7 @@
 # Scoring API image. Build from the repo root after `couponroi all` has produced artifacts/.
 #   docker build -t coupon-roi-api .
 #   docker run -p 8000:8000 coupon-roi-api      ->  http://localhost:8000/docs
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # LightGBM needs the OpenMP runtime
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*

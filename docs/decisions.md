@@ -113,3 +113,17 @@ from +3.08 to +3.63 $/week).
 
 `couponroi all --synthetic` (what CI runs) originally wrote to the same folders as the real run, so running it locally
 would have replaced the real models and app bundle. Synthetic runs now write to `build/synthetic/`.
+
+## 12. Reruns weren't reproducible
+
+A clean-clone rerun reproduced the SQL, EDA, causal and drift results bit for bit, but the LightGBM-based results
+(lapse model, uplift, policy) drifted in the third decimal, with identical package versions. LightGBM sums histograms
+across threads, and the order depends on scheduling, so it isn't deterministic by default. Setting
+`deterministic=True` and `force_row_wise=True` fixed it: two consecutive runs now produce byte-identical results
+files and model files.
+
+## 13. CI and Docker targeted a Python the models couldn't run on
+
+The first Dockerfile and CI used Python 3.11, but the models were trained with NumPy 2.5, which needs Python 3.12 or
+newer, so the API image would have failed to build. Both now use Python 3.13 (the training version), and
+`requirements-api.txt` pins the exact training versions so the pickled uplift model always loads the same way.

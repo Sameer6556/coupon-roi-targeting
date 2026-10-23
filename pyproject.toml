@@ -7,12 +7,12 @@ name = "couponroi"
 version = "1.0.0"
 description = "Causal campaign measurement and uplift-based coupon targeting on The Complete Journey grocery data"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Sameer Singh" }]
 dependencies = [
     "completejourney_py>=0.1.0",
-    "duckdb>=1.1",
+    "duckdb>=2.0",
     "pandas>=2.1",
     "numpy>=1.26",
     "pyarrow>=14",
@@ -54,7 +54,7 @@ filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 
 [tool.ruff]
 line-length = 110
-target-version = "py310"
+target-version = "py311"
 extend-exclude = ["notebooks"]
 
 [tool.ruff.lint]

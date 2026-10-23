@@ -126,7 +126,9 @@ uvicorn api.main:app          # the API, docs at localhost:8000/docs
 pytest                        # tests
 ```
 
-The app and API also run straight from the committed bundle in `artifacts/` without rerunning anything. Other
+Python 3.11 or newer; the committed models were trained on 3.13, and the API image pins the exact training
+versions in `requirements-api.txt`. The app and API also run straight from the committed bundle in `artifacts/`
+without rerunning anything. Other
 commands: `make synthetic` (pipeline on generated data), `make notebooks`, `make mlflow`, `couponroi ask "question"`
 and `couponroi ask-eval` (need an LLM endpoint, see `src/couponroi/ask.py`).
 

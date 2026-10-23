@@ -44,6 +44,10 @@ LGB_PARAMS = {
     "reg_lambda": 5.0,
     "n_estimators": 2000,
     "verbose": -1,
+    # same data + same params -> same model, whatever the thread count (LightGBM is not
+    # deterministic by default; reruns drifted in the 3rd decimal before this)
+    "deterministic": True,
+    "force_row_wise": True,
 }
 
 

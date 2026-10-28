@@ -3,10 +3,10 @@
 **Did a grocery retailer's coupon booklets actually change what people spend, who is about to drift away, and who
 should get the next booklet?** Built end to end on a year of real transactions from 2,469 households.
 
-[Live app](https://<your-app>.streamlit.app) · [Notebooks](notebooks/) · [Write-up](docs/write-up.md) ·
+[Live app](https://coupon-roi-targeting-ttxbgtmqvmgmuqn5mb9unq.streamlit.app/) · [Notebooks](notebooks/) · [Write-up](docs/write-up.md) ·
 [One-page memo](docs/memo.md) · [Decision log](docs/decisions.md)
 
-![CI](https://github.com/<your-username>/coupon-roi-targeting/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/Sameer6556/coupon-roi-targeting/actions/workflows/ci.yml/badge.svg)
 
 ## The short version
 
@@ -116,7 +116,7 @@ response (they buy anyway); the response sits with regulars who are starting to 
 ## Run it
 
 ```bash
-git clone https://github.com/<your-username>/coupon-roi-targeting.git
+git clone https://github.com/Sameer6556/coupon-roi-targeting.git
 cd coupon-roi-targeting
 pip install -e ".[dev]"
 

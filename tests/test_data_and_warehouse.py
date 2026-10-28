@@ -36,6 +36,14 @@ def test_warehouse_quality_checks_pass(con):
     assert not failed, failed
 
 
+def test_warehouse_connections_are_single_threaded(synth_dirs):
+    # parallel float sums differ in the last bit from run to run (decision log 14). The synthetic
+    # data is too small to show it, so check the setting itself
+    con = warehouse.connect(synth_dirs["db"])
+    assert con.execute("SELECT current_setting('threads')").fetchone()[0] == 1
+    con.close()
+
+
 def test_panel_is_dense_and_reconciles(con):
     hh = con.execute("SELECT count(*) FROM dim_household").fetchone()[0]
     weeks = con.execute("SELECT count(*) FROM dim_week").fetchone()[0]

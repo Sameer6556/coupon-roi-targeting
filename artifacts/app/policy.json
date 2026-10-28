@@ -8,205 +8,205 @@
   "eligible_households": 2227,
   "budget_share_compared": 0.45,
   "profit_at_budget": {
-    "uplift model": 6559.294076361902,
-    "heaviest shoppers (current rule)": 1050.9728351528809,
-    "highest lapse risk": 1535.4878355202163,
-    "random": 85.57876387957822
+    "uplift model": 6771.226323940337,
+    "heaviest shoppers (current rule)": 1098.4375747479535,
+    "highest lapse risk": 1462.6711593681227,
+    "random": 80.52942100376644
   },
-  "profit_mail_everyone": 1055.9747763147743,
-  "optimal_mail_count": 1057,
-  "optimal_mail_share": 0.4746295464750786,
-  "profit_at_optimum": 6569.679808771921,
+  "profit_mail_everyone": 1055.9747763147711,
+  "optimal_mail_count": 1050,
+  "optimal_mail_share": 0.4714863044454423,
+  "profit_at_optimum": 6777.3221729481465,
   "profit_at_optimum_ci": [
-    2661.2115984704596,
-    10478.148019073367
+    2894.737858079143,
+    10659.906487817118
   ],
   "holdout_profit_per_1000_at_30pct": {
-    "uplift model": 1982.907386375456,
-    "heaviest shoppers (current rule)": 113.42306500260123,
-    "random": -307.39177275090987
+    "uplift model": 1531.8228296931875,
+    "heaviest shoppers (current rule)": 113.42306500259937,
+    "random": -307.39177275091106
   },
   "holdout_profit_per_1000_all": {
-    "uplift model": -758.3916939677557,
-    "heaviest shoppers (current rule)": -758.3916939677575,
-    "random": -758.3916939677591
+    "uplift model": -758.3916939677597,
+    "heaviest shoppers (current rule)": -758.3916939677594,
+    "random": -758.3916939677595
   },
   "sensitivity": [
     {
       "margin": 0.2,
       "cost": 0.5,
-      "share_to_mail": 0.5321,
-      "profit_per_1000_eligible": 2393.8564,
+      "share_to_mail": 0.5285,
+      "profit_per_1000_eligible": 2458.0615,
       "profit_if_mail_all_per_1000": 910.1208
     },
     {
       "margin": 0.2,
       "cost": 1.0,
-      "share_to_mail": 0.4791,
-      "profit_per_1000_eligible": 2141.1458,
+      "share_to_mail": 0.4755,
+      "profit_per_1000_eligible": 2207.5813,
       "profit_if_mail_all_per_1000": 410.1208
     },
     {
       "margin": 0.2,
       "cost": 1.5,
-      "share_to_mail": 0.4387,
-      "profit_per_1000_eligible": 1911.6616,
+      "share_to_mail": 0.4329,
+      "profit_per_1000_eligible": 1980.8712,
       "profit_if_mail_all_per_1000": -89.8792
     },
     {
       "margin": 0.2,
       "cost": 2.0,
-      "share_to_mail": 0.3911,
-      "profit_per_1000_eligible": 1704.8893,
+      "share_to_mail": 0.3952,
+      "profit_per_1000_eligible": 1773.2672,
       "profit_if_mail_all_per_1000": -589.8792
     },
     {
       "margin": 0.2,
       "cost": 3.0,
-      "share_to_mail": 0.3103,
-      "profit_per_1000_eligible": 1356.4918,
+      "share_to_mail": 0.3175,
+      "profit_per_1000_eligible": 1417.5303,
       "profit_if_mail_all_per_1000": -1589.8792
     },
     {
       "margin": 0.25,
       "cost": 0.5,
-      "share_to_mail": 0.5429,
-      "profit_per_1000_eligible": 3059.6167,
+      "share_to_mail": 0.5348,
+      "profit_per_1000_eligible": 3138.9283,
       "profit_if_mail_all_per_1000": 1262.6511
     },
     {
       "margin": 0.25,
       "cost": 1.0,
-      "share_to_mail": 0.4993,
-      "profit_per_1000_eligible": 2798.772,
+      "share_to_mail": 0.4953,
+      "profit_per_1000_eligible": 2880.8164,
       "profit_if_mail_all_per_1000": 762.6511
     },
     {
       "margin": 0.25,
       "cost": 1.5,
-      "share_to_mail": 0.4612,
-      "profit_per_1000_eligible": 2558.6387,
+      "share_to_mail": 0.4544,
+      "profit_per_1000_eligible": 2642.6917,
       "profit_if_mail_all_per_1000": 262.6511
     },
     {
       "margin": 0.25,
       "cost": 2.0,
-      "share_to_mail": 0.427,
-      "profit_per_1000_eligible": 2335.5808,
+      "share_to_mail": 0.4252,
+      "profit_per_1000_eligible": 2422.37,
       "profit_if_mail_all_per_1000": -237.3489
     },
     {
       "margin": 0.25,
       "cost": 3.0,
-      "share_to_mail": 0.3529,
-      "profit_per_1000_eligible": 1944.5311,
+      "share_to_mail": 0.3619,
+      "profit_per_1000_eligible": 2026.6499,
       "profit_if_mail_all_per_1000": -1237.3489
     },
     {
       "margin": 0.28,
       "cost": 0.5,
-      "share_to_mail": 0.5469,
-      "profit_per_1000_eligible": 3459.4568,
+      "share_to_mail": 0.5379,
+      "profit_per_1000_eligible": 3547.7837,
       "profit_if_mail_all_per_1000": 1474.1692
     },
     {
       "margin": 0.28,
       "cost": 1.0,
-      "share_to_mail": 0.5106,
-      "profit_per_1000_eligible": 3195.0874,
+      "share_to_mail": 0.5043,
+      "profit_per_1000_eligible": 3286.3978,
       "profit_if_mail_all_per_1000": 974.1692
     },
     {
       "margin": 0.28,
       "cost": 1.5,
-      "share_to_mail": 0.4746,
-      "profit_per_1000_eligible": 2950.0134,
+      "share_to_mail": 0.4715,
+      "profit_per_1000_eligible": 3043.252,
       "profit_if_mail_all_per_1000": 474.1692
     },
     {
       "margin": 0.28,
       "cost": 2.0,
-      "share_to_mail": 0.4445,
-      "profit_per_1000_eligible": 2720.5252,
+      "share_to_mail": 0.4401,
+      "profit_per_1000_eligible": 2816.7373,
       "profit_if_mail_all_per_1000": -25.8308
     },
     {
       "margin": 0.28,
       "cost": 3.0,
-      "share_to_mail": 0.3799,
-      "profit_per_1000_eligible": 2309.7524,
+      "share_to_mail": 0.3839,
+      "profit_per_1000_eligible": 2404.5537,
       "profit_if_mail_all_per_1000": -1025.8308
     },
     {
       "margin": 0.3,
       "cost": 0.5,
-      "share_to_mail": 0.5478,
-      "profit_per_1000_eligible": 3726.1171,
+      "share_to_mail": 0.5388,
+      "profit_per_1000_eligible": 3820.4217,
       "profit_if_mail_all_per_1000": 1615.1813
     },
     {
       "margin": 0.3,
       "cost": 1.0,
-      "share_to_mail": 0.5137,
-      "profit_per_1000_eligible": 3459.8696,
+      "share_to_mail": 0.5083,
+      "profit_per_1000_eligible": 3557.3035,
       "profit_if_mail_all_per_1000": 1115.1813
     },
     {
       "margin": 0.3,
       "cost": 1.5,
-      "share_to_mail": 0.4791,
-      "profit_per_1000_eligible": 3211.7188,
+      "share_to_mail": 0.4755,
+      "profit_per_1000_eligible": 3311.3719,
       "profit_if_mail_all_per_1000": 615.1813
     },
     {
       "margin": 0.3,
       "cost": 2.0,
-      "share_to_mail": 0.4517,
-      "profit_per_1000_eligible": 2978.99,
+      "share_to_mail": 0.445,
+      "profit_per_1000_eligible": 3081.1631,
       "profit_if_mail_all_per_1000": 115.1813
     },
     {
       "margin": 0.3,
       "cost": 3.0,
-      "share_to_mail": 0.3911,
-      "profit_per_1000_eligible": 2557.334,
+      "share_to_mail": 0.3952,
+      "profit_per_1000_eligible": 2659.9009,
       "profit_if_mail_all_per_1000": -884.8187
     },
     {
       "margin": 0.35,
       "cost": 0.5,
-      "share_to_mail": 0.5555,
-      "profit_per_1000_eligible": 4393.2264,
+      "share_to_mail": 0.5451,
+      "profit_per_1000_eligible": 4502.3303,
       "profit_if_mail_all_per_1000": 1967.7115
     },
     {
       "margin": 0.35,
       "cost": 1.0,
-      "share_to_mail": 0.5249,
-      "profit_per_1000_eligible": 4123.2303,
+      "share_to_mail": 0.52,
+      "profit_per_1000_eligible": 4236.0346,
       "profit_if_mail_all_per_1000": 1467.7115
     },
     {
       "margin": 0.35,
       "cost": 1.5,
-      "share_to_mail": 0.4935,
-      "profit_per_1000_eligible": 3868.5988,
+      "share_to_mail": 0.489,
+      "profit_per_1000_eligible": 3983.8427,
       "profit_if_mail_all_per_1000": 967.7115
     },
     {
       "margin": 0.35,
       "cost": 2.0,
-      "share_to_mail": 0.4679,
-      "profit_per_1000_eligible": 3628.555,
+      "share_to_mail": 0.4621,
+      "profit_per_1000_eligible": 3745.6815,
       "profit_if_mail_all_per_1000": 467.7115
     },
     {
       "margin": 0.35,
       "cost": 3.0,
-      "share_to_mail": 0.4185,
-      "profit_per_1000_eligible": 3185.3494,
+      "share_to_mail": 0.4203,
+      "profit_per_1000_eligible": 3306.669,
       "profit_if_mail_all_per_1000": -532.2885
     }
   ],
-  "headline": "Simulated: at the current budget (45% of active households) the uplift ranking is worth $6.6K vs $1.1K for the heaviest-shopper rule and $86 at random. Mailing only the 1,057 households with positive expected profit (47%) gives $6.6K (range $2.7K to $10.5K across the effect's 95% CI). Best ranking at budget: uplift model."
+  "headline": "Simulated: at the current budget (45% of active households) the uplift ranking is worth $6.8K vs $1.1K for the heaviest-shopper rule and $81 at random. Mailing only the 1,050 households with positive expected profit (47%) gives $6.8K (range $2.9K to $10.7K across the effect's 95% CI). Best ranking at budget: uplift model."
 }

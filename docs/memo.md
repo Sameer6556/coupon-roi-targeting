@@ -25,7 +25,7 @@ should test that with a proper holdout.
 1. **Pick recipients by predicted response, not by past spend.** Today's lists skew to our heaviest shoppers. The model
    expects the most loyal heavy shoppers to show no response at all (they buy anyway), while regular shoppers who are
    starting to drift respond the most. On two past waves the model had not seen, the 30% of recipients it ranked highest
-   responded with about **$4.00 a week**, against $0.37 for all recipients. If that holds, it's roughly **$6.60 profit
+   responded with about **$3.26 a week**, against $0.37 for all recipients. If that holds, it's roughly **$5.10 profit
    per booklet**, compared with a loss of about $0.76 per booklet when mailing everyone. This is promising, not proven:
    the interval on that gain still includes zero.
 2. **Keep a random holdout in every wave.** Hold back 20% of the chosen list. An effect of $1 a week needs about

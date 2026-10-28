@@ -77,19 +77,19 @@
       "cal_cutoffs": "27-29",
       "n_train": 6946,
       "n_test": 1424,
-      "pr_auc": 0.2404,
-      "roc_auc": 0.8313,
+      "pr_auc": 0.2426,
+      "roc_auc": 0.8324,
       "base_rate": 0.0716,
-      "precision_at_k": 0.2113,
-      "recall_at_k": 0.2941,
-      "lift_at_k": 2.9495,
-      "brier": 0.0599,
-      "ece": 0.023,
-      "brier_uncalibrated": 0.0599,
-      "ece_uncalibrated": 0.0232,
-      "ece_isotonic": 0.0231,
-      "platt_a": 0.9462,
-      "platt_b": -0.1453
+      "precision_at_k": 0.2042,
+      "recall_at_k": 0.2843,
+      "lift_at_k": 2.8511,
+      "brier": 0.0598,
+      "ece": 0.0265,
+      "brier_uncalibrated": 0.0598,
+      "ece_uncalibrated": 0.0267,
+      "ece_isotonic": 0.0267,
+      "platt_a": 0.965,
+      "platt_b": -0.1061
     },
     {
       "test_cutoff": 41,
@@ -140,19 +140,19 @@
       "cal_cutoffs": "31-33",
       "n_train": 9787,
       "n_test": 1410,
-      "pr_auc": 0.2951,
-      "roc_auc": 0.8276,
+      "pr_auc": 0.2911,
+      "roc_auc": 0.8274,
       "base_rate": 0.0801,
-      "precision_at_k": 0.3191,
-      "recall_at_k": 0.3982,
-      "lift_at_k": 3.9823,
+      "precision_at_k": 0.3333,
+      "recall_at_k": 0.4159,
+      "lift_at_k": 4.1593,
       "brier": 0.0639,
-      "ece": 0.0072,
-      "brier_uncalibrated": 0.0644,
-      "ece_uncalibrated": 0.0152,
-      "ece_isotonic": 0.0086,
-      "platt_a": 1.1182,
-      "platt_b": 0.3601
+      "ece": 0.0094,
+      "brier_uncalibrated": 0.0643,
+      "ece_uncalibrated": 0.0162,
+      "ece_isotonic": 0.0107,
+      "platt_a": 1.0525,
+      "platt_b": 0.2348
     },
     {
       "test_cutoff": 45,
@@ -203,34 +203,34 @@
       "cal_cutoffs": "35-37",
       "n_train": 12641,
       "n_test": 1422,
-      "pr_auc": 0.2607,
-      "roc_auc": 0.8242,
+      "pr_auc": 0.2623,
+      "roc_auc": 0.8254,
       "base_rate": 0.0802,
       "precision_at_k": 0.3169,
       "recall_at_k": 0.3947,
       "lift_at_k": 3.9529,
-      "brier": 0.0659,
-      "ece": 0.0117,
+      "brier": 0.0658,
+      "ece": 0.0102,
       "brier_uncalibrated": 0.066,
-      "ece_uncalibrated": 0.0153,
-      "ece_isotonic": 0.0144,
-      "platt_a": 0.9923,
-      "platt_b": 0.0691
+      "ece_uncalibrated": 0.0151,
+      "ece_isotonic": 0.0109,
+      "platt_a": 0.9756,
+      "platt_b": 0.0468
     }
   ],
   "summary": [
     {
       "model": "LightGBM",
-      "pr_auc": 0.2654,
-      "roc_auc": 0.8277,
-      "precision_at_k": 0.2824,
-      "recall_at_k": 0.3624,
-      "lift_at_k": 3.6282,
+      "pr_auc": 0.2653,
+      "roc_auc": 0.8284,
+      "precision_at_k": 0.2848,
+      "recall_at_k": 0.365,
+      "lift_at_k": 3.6545,
       "brier": 0.0632,
-      "ece": 0.014,
+      "ece": 0.0153,
       "brier_uncalibrated": 0.0634,
-      "ece_uncalibrated": 0.0179,
-      "ece_isotonic": 0.0154
+      "ece_uncalibrated": 0.0193,
+      "ece_isotonic": 0.0161
     },
     {
       "model": "logistic regression",
@@ -279,7 +279,7 @@
       43,
       45
     ],
-    "best_iteration": 304,
+    "best_iteration": 532,
     "n_train": 18338,
     "features": [
       "recency_weeks",
@@ -312,122 +312,122 @@
   },
   "shap": {
     "importance": {
-      "active_weeks_16w": 0.4001,
-      "trips_4w": 0.3476,
-      "spend_cv_16w": 0.1947,
-      "spend_4w": 0.1808,
-      "trips_8w": 0.1236,
-      "recency_weeks": 0.1229,
-      "spend_8w": 0.1032,
-      "discount_share_16w": 0.1024,
-      "private_share_16w": 0.0896,
-      "trips_16w": 0.077,
-      "spend_16w": 0.0762,
-      "campaigns_16w": 0.0741,
-      "categories_16w": 0.0564,
-      "basket_value_16w": 0.0494,
-      "promo_share_16w": 0.0441,
-      "stores_16w": 0.0413,
-      "spend_slope_rel_16w": 0.0356,
-      "redemptions_16w": 0.0326,
-      "type_a_16w": 0.0306,
-      "momentum_4v16": 0.0285,
-      "active_weeks_8w": 0.0271,
-      "buys_fuel_16w": 0.0232,
-      "momentum_8v16": 0.0225,
-      "departments_16w": 0.0201
+      "active_weeks_16w": 0.4147,
+      "trips_4w": 0.3604,
+      "spend_cv_16w": 0.199,
+      "spend_4w": 0.1892,
+      "discount_share_16w": 0.1401,
+      "private_share_16w": 0.1366,
+      "trips_8w": 0.1314,
+      "recency_weeks": 0.1278,
+      "spend_8w": 0.121,
+      "campaigns_16w": 0.0958,
+      "spend_16w": 0.0954,
+      "categories_16w": 0.0933,
+      "trips_16w": 0.0889,
+      "basket_value_16w": 0.0762,
+      "stores_16w": 0.0676,
+      "promo_share_16w": 0.0655,
+      "momentum_4v16": 0.0519,
+      "spend_slope_rel_16w": 0.0493,
+      "momentum_8v16": 0.046,
+      "type_a_16w": 0.0396,
+      "redemptions_16w": 0.0372,
+      "departments_16w": 0.033,
+      "active_weeks_8w": 0.0245,
+      "buys_fuel_16w": 0.023
     },
     "cases": {
       "high": {
-        "household_id": 465,
-        "raw_prob": 0.5609491329072164,
+        "household_id": 623,
+        "raw_prob": 0.5828141151968084,
         "top_contributions": [
           {
             "feature": "active_weeks_16w",
-            "value": 9.0,
-            "shap": 0.7774189088088448
-          },
-          {
-            "feature": "trips_4w",
-            "value": 1.0,
-            "shap": 0.5851503141454469
+            "value": 8.0,
+            "shap": 0.8354372509567672
           },
           {
             "feature": "categories_16w",
-            "value": 14.0,
-            "shap": 0.522542276444274
+            "value": 19.0,
+            "shap": 0.5931374155986715
           },
           {
-            "feature": "spend_4w",
-            "value": 0.65,
-            "shap": 0.4792539682005827
-          },
-          {
-            "feature": "trips_8w",
+            "feature": "trips_4w",
             "value": 3.0,
-            "shap": 0.29543538597107044
+            "shap": 0.45709596980955
+          },
+          {
+            "feature": "discount_share_16w",
+            "value": 0.0829605530703538,
+            "shap": 0.3249968100027656
+          },
+          {
+            "feature": "spend_cv_16w",
+            "value": 1.5595558711909614,
+            "shap": 0.3123709346775027
           }
         ]
       },
       "median": {
-        "household_id": 742,
-        "raw_prob": 0.025325262139477726,
+        "household_id": 779,
+        "raw_prob": 0.02403844892257573,
         "top_contributions": [
           {
-            "feature": "spend_4w",
-            "value": 16.71,
-            "shap": 0.3616468976425069
+            "feature": "active_weeks_16w",
+            "value": 10.0,
+            "shap": 0.5269965979689826
           },
           {
-            "feature": "active_weeks_16w",
-            "value": 15.0,
-            "shap": -0.2741631198457052
+            "feature": "spend_cv_16w",
+            "value": 1.0054645496589507,
+            "shap": -0.26091965663792505
+          },
+          {
+            "feature": "promo_share_16w",
+            "value": 0.1351834924833233,
+            "shap": -0.24891045341463458
           },
           {
             "feature": "trips_4w",
-            "value": 7.0,
-            "shap": -0.19541458587307742
+            "value": 8.0,
+            "shap": -0.22853079812341323
           },
           {
-            "feature": "spend_8w",
-            "value": 11.75875,
-            "shap": 0.15093079823850977
-          },
-          {
-            "feature": "discount_share_16w",
-            "value": 0.1740718060375133,
-            "shap": -0.1421309604140517
+            "feature": "trips_16w",
+            "value": 17.0,
+            "shap": 0.1768973310783201
           }
         ]
       },
       "low": {
-        "household_id": 1795,
-        "raw_prob": 0.0019531679081605945,
+        "household_id": 2351,
+        "raw_prob": 0.0009358328961448092,
         "top_contributions": [
           {
             "feature": "active_weeks_16w",
             "value": 16.0,
-            "shap": -0.5724806378547403
+            "shap": -0.6212008886576004
           },
           {
             "feature": "trips_4w",
-            "value": 67.0,
-            "shap": -0.41681375201713045
+            "value": 14.0,
+            "shap": -0.4852971151413528
           },
           {
             "feature": "spend_cv_16w",
-            "value": 0.5925360574124655,
-            "shap": -0.23005380091906455
+            "value": 0.3807571052927053,
+            "shap": -0.3376257921831334
           },
           {
             "feature": "spend_16w",
-            "value": 121.64312499999998,
-            "shap": -0.22542436759909532
+            "value": 158.431875,
+            "shap": -0.2854815511776856
           },
           {
             "feature": "spend_4w",
-            "value": 119.4925,
-            "shap": -0.21472018357268877
+            "value": 158.77999999999997,
+            "shap": -0.28472361962126386
           }
         ]
       }

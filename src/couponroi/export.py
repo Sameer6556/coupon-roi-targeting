@@ -14,13 +14,13 @@ import json
 import logging
 import shutil
 
-import duckdb
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
 from . import config
 from .features import FEATURE_DESCRIPTIONS, FEATURES
+from .warehouse import connect
 
 log = logging.getLogger(__name__)
 TABLES = {
@@ -66,7 +66,7 @@ def run() -> dict:
     if db_path.exists():
         db_path.unlink()
 
-    wh = duckdb.connect(str(config.WAREHOUSE_PATH), read_only=True)
+    wh = connect()
     frames = {name: wh.execute(f"SELECT * FROM {view}").df() for name, view in TABLES.items()}
     wh.close()
 
@@ -90,7 +90,7 @@ def run() -> dict:
     ] + FEATURES
     frames["household_scores"] = scored[keep]
 
-    con = duckdb.connect(str(db_path))
+    con = connect(db_path, read_only=False)
     for name, df in frames.items():
         con.register("df_tmp", df)
         con.execute(f"CREATE TABLE {name} AS SELECT * FROM df_tmp")

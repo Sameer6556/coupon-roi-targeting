@@ -10,99 +10,99 @@
     {
       "scenario": "randomised (like an A/B test)",
       "learner": "DR-learner",
-      "pehe": 3.5915,
-      "spearman": 0.6066,
-      "ate_error": 0.0457,
-      "policy_share_of_oracle": 0.6768,
+      "pehe": 3.6153,
+      "spearman": 0.6,
+      "ate_error": 0.0742,
+      "policy_share_of_oracle": 0.6675,
       "random_share_of_oracle": 0.2006,
-      "naive_ate_error": 0.2332
+      "naive_ate_error": 0.2467
     },
     {
       "scenario": "randomised (like an A/B test)",
       "learner": "T-learner",
-      "pehe": 4.2641,
-      "spearman": 0.5569,
-      "ate_error": 0.0949,
-      "policy_share_of_oracle": 0.6482,
+      "pehe": 4.2449,
+      "spearman": 0.562,
+      "ate_error": 0.1045,
+      "policy_share_of_oracle": 0.6475,
       "random_share_of_oracle": 0.2006,
-      "naive_ate_error": 0.2332
+      "naive_ate_error": 0.2467
     },
     {
       "scenario": "randomised (like an A/B test)",
       "learner": "X-learner",
-      "pehe": 2.9598,
-      "spearman": 0.6612,
-      "ate_error": 0.0563,
-      "policy_share_of_oracle": 0.7392,
+      "pehe": 2.972,
+      "spearman": 0.6661,
+      "ate_error": 0.0519,
+      "policy_share_of_oracle": 0.7391,
       "random_share_of_oracle": 0.2006,
-      "naive_ate_error": 0.2332
+      "naive_ate_error": 0.2467
     },
     {
       "scenario": "targeted (like the real booklets)",
       "learner": "DR-learner",
-      "pehe": 5.1769,
-      "spearman": 0.4422,
-      "ate_error": 0.2614,
-      "policy_share_of_oracle": 0.5346,
+      "pehe": 5.135,
+      "spearman": 0.4608,
+      "ate_error": 0.2352,
+      "policy_share_of_oracle": 0.5445,
       "random_share_of_oracle": 0.2006,
-      "naive_ate_error": -0.0104
+      "naive_ate_error": 0.0279
     },
     {
       "scenario": "targeted (like the real booklets)",
       "learner": "T-learner",
-      "pehe": 4.3368,
-      "spearman": 0.5726,
-      "ate_error": 0.5119,
-      "policy_share_of_oracle": 0.6518,
+      "pehe": 4.2739,
+      "spearman": 0.5756,
+      "ate_error": 0.5022,
+      "policy_share_of_oracle": 0.6544,
       "random_share_of_oracle": 0.2006,
-      "naive_ate_error": -0.0104
+      "naive_ate_error": 0.0279
     },
     {
       "scenario": "targeted (like the real booklets)",
       "learner": "X-learner",
-      "pehe": 2.6247,
-      "spearman": 0.6706,
-      "ate_error": 0.2574,
-      "policy_share_of_oracle": 0.7385,
+      "pehe": 2.6117,
+      "spearman": 0.6755,
+      "ate_error": 0.226,
+      "policy_share_of_oracle": 0.7479,
       "random_share_of_oracle": 0.2006,
-      "naive_ate_error": -0.0104
+      "naive_ate_error": 0.0279
     }
   ],
   "out_of_time": [
     {
       "learner": "T-learner",
-      "slope": 0.2303,
-      "slope_se": 0.1845,
-      "slope_p": 0.2119,
-      "top30_effect": -0.1385,
+      "slope": 0.2426,
+      "slope_se": 0.1857,
+      "slope_p": 0.1913,
+      "top30_effect": 0.6992,
       "all_effect": 0.3653,
-      "top30_gain": -0.5038,
-      "top30_gain_lo": -4.6035,
-      "top30_gain_hi": 3.1736,
+      "top30_gain": 0.3339,
+      "top30_gain_lo": -4.2044,
+      "top30_gain_hi": 3.4154,
       "n_pairs": 641
     },
     {
       "learner": "X-learner",
-      "slope": 0.9337,
-      "slope_se": 0.3645,
-      "slope_p": 0.0104,
-      "top30_effect": 4.0,
+      "slope": 0.947,
+      "slope_se": 0.3693,
+      "slope_p": 0.0103,
+      "top30_effect": 3.2582,
       "all_effect": 0.3653,
-      "top30_gain": 3.6347,
-      "top30_gain_lo": -0.4041,
-      "top30_gain_hi": 7.3004,
+      "top30_gain": 2.8928,
+      "top30_gain_lo": -0.7025,
+      "top30_gain_hi": 6.8401,
       "n_pairs": 641
     },
     {
       "learner": "DR-learner",
-      "slope": 0.2208,
-      "slope_se": 0.2195,
-      "slope_p": 0.3145,
-      "top30_effect": 0.4653,
+      "slope": 0.2026,
+      "slope_se": 0.2247,
+      "slope_p": 0.3671,
+      "top30_effect": 1.7427,
       "all_effect": 0.3653,
-      "top30_gain": 0.0999,
-      "top30_gain_lo": -3.3484,
-      "top30_gain_hi": 3.6269,
+      "top30_gain": 1.3774,
+      "top30_gain_lo": -2.858,
+      "top30_gain_hi": 4.3772,
       "n_pairs": 641
     },
     {
@@ -131,11 +131,11 @@
     }
   ],
   "chosen_learner": "X-learner",
-  "shrinkage_slope": 0.9337177094474601,
-  "shrinkage_used": 0.9337177094474601,
-  "ate_used": 0.9724971357599133,
+  "shrinkage_slope": 0.947006523365067,
+  "shrinkage_used": 0.947006523365067,
+  "ate_used": 0.9724971357599128,
   "scored_households": 2227,
-  "uplift_spread_raw_sd": 3.8359594881328993,
-  "uplift_spread_shrunk_sd": 3.5817033067927024,
-  "headline": "With planted effects and the real (non-random) targeting, the X-learner captured 74% of the best possible uplift in its top 30% (random: 20%). On real held-out waves its predictions had a calibration slope of 0.93 (top-30% gain +3.63 $/week, 95% CI -0.40 to +7.30), so predictions are shrunk toward the average effect before they drive any targeting."
+  "uplift_spread_raw_sd": 3.886852335299345,
+  "uplift_spread_shrunk_sd": 3.6808745168852246,
+  "headline": "With planted effects and the real (non-random) targeting, the X-learner captured 75% of the best possible uplift in its top 30% (random: 20%). On real held-out waves its predictions had a calibration slope of 0.95 (top-30% gain +2.89 $/week, 95% CI -0.70 to +6.84), so predictions are shrunk toward the average effect before they drive any targeting."
 }

@@ -78,14 +78,14 @@ the model saw values it never saw in training. Tenure is also meaningless here b
 for everyone.
 
 Fix: every feature now uses a fixed 4, 8 or 16 week window. The lapse model's AUC didn't change (0.83). The uplift
-model's out-of-time calibration slope went from 0.49 to 0.93, so the drifting features had been hurting the model
+model's out-of-time calibration slope went from 0.49 to 0.95, so the drifting features had been hurting the model
 that depends on transferring across waves.
 
 ## 7. Calibration: isotonic overfit the top end
 
 Isotonic regression on the calibration weeks gave a similar expected calibration error, but it's a step function
 fitted on very few high-risk households, and it pushed one household straight to a 100% lapse probability. Platt
-scaling (two parameters) is smooth and gave an ECE of 0.014 vs 0.015 for isotonic. Since the targeting step
+scaling (two parameters) is smooth and gave an ECE of 0.015 vs 0.016 for isotonic. Since the targeting step
 multiplies probabilities by dollars, I'd rather have smooth than jumpy.
 
 ## 8. LightGBM didn't beat logistic regression
@@ -98,16 +98,17 @@ logistic model would be a perfectly good production choice.
 ## 9. Picking the uplift learner
 
 I started with the DR-learner because it's the most principled under targeted assignment. Out of time it didn't
-hold up (calibration slope 0.22, not significant). I then made the choice a fixed rule: the learner that captures the
-most uplift in the planted-effect benchmark under real (non-random) targeting. That's the X-learner (74% of the
+hold up (calibration slope 0.20, not significant). I then made the choice a fixed rule: the learner that captures the
+most uplift in the planted-effect benchmark under real (non-random) targeting. That's the X-learner (75% of the
 oracle vs 54% for DR, 65% for T). Because I changed the rule after seeing one result, all three learners'
 out-of-time results are always reported side by side.
 
 ## 10. Outlier caps leaking across waves
 
 The uplift outcome is winsorised at the 1st and 99th percentiles. The first version computed the caps on all waves,
-including the held-out one. Small leak, but a leak. Caps now come from the training waves only (top-30% gain moved
-from +3.08 to +3.63 $/week).
+including the held-out one. Small leak, but a leak. Caps now come from the training waves only (top-30% gain went
+from +3.01 to +2.89 $/week, so the leak flattered it a little; my first measurement said the opposite, but
+that was inside the rerun noise in 14).
 
 ## 11. Synthetic runs could overwrite real results
 
@@ -119,11 +120,33 @@ would have replaced the real models and app bundle. Synthetic runs now write to 
 A clean-clone rerun reproduced the SQL, EDA, causal and drift results bit for bit, but the LightGBM-based results
 (lapse model, uplift, policy) drifted in the third decimal, with identical package versions. LightGBM sums histograms
 across threads, and the order depends on scheduling, so it isn't deterministic by default. Setting
-`deterministic=True` and `force_row_wise=True` fixed it: two consecutive runs now produce byte-identical results
-files and model files.
+`deterministic=True` and `force_row_wise=True` fixed LightGBM's part of it. It wasn't the whole story (see 14).
 
 ## 13. CI and Docker targeted a Python the models couldn't run on
 
 The first Dockerfile and CI used Python 3.11, but the models were trained with NumPy 2.5, which needs Python 3.12 or
 newer, so the API image would have failed to build. Both now use Python 3.13 (the training version), and
 `requirements-api.txt` pins the exact training versions so the pickled uplift model always loads the same way.
+
+## 14. Reruns still weren't reproducible
+
+**Symptom.** A clean rerun on another machine didn't match the committed results, and neither did two runs back to back
+on the same machine. Same code, same data, and the held-out profit per booklet for the top 30% by uplift came out
+at +$6.61, +$5.07, +$6.98 and +$2.82.
+
+**Cause.** Not LightGBM this time: fed the same warehouse, it built the same model every run, on 2 threads or 4. The
+warehouse was the problem. DuckDB adds up doubles in parallel, in whatever order its threads finish, so every build of
+`hh_week` and `dim_household` came out different in the last digit (88,749 values in `hh_week` between two builds).
+The causal numbers didn't notice. LightGBM did: a near-tied split flips, early stopping lands somewhere else (the lapse
+model had anywhere from 303 to 421 trees), and it carries through to uplift and policy.
+
+**Fix.** Every warehouse connection runs on one DuckDB thread, so the sums always happen in the same order. The build
+went from 5 to 15 seconds. Two runs now give the same results, models and app tables, on 2 cores or 4. A test checks
+the setting, since the synthetic data is too small to show the problem. The SHAP beeswarm shuffles its dots, so it's
+seeded now too.
+
+**Numbers.** Everything in the README and docs comes from this version. The matched DiD didn't move and the lapse
+model barely did (ECE 0.014 to 0.015). The uplift side moved more: the X-learner captures 75% of the planted uplift
+(was 74%), its out-of-time slope is 0.95 (was 0.93), and the top 30% by uplift makes +$5.11 per booklet on the
+held-out waves (was +$6.61). The real lesson is that last number swinging by $4 on rounding noise. It's a direction,
+not a forecast, which is what its interval was already saying.

@@ -329,6 +329,7 @@ def _fig_shap(gbm, X: pd.DataFrame) -> dict:
     P.save(fig, "churn_3_shap_importance")
 
     fig = plt.figure()
+    np.random.seed(config.SEED)  # beeswarm shuffles its dots with numpy's global RNG
     shap.plots.beeswarm(
         shap.Explanation(
             values,

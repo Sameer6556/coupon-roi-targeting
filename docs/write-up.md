@@ -69,15 +69,16 @@ effect for each household. I tried three (T, X and DR learners on LightGBM) and 
 because nobody is observed both with and without a booklet. So two other checks:
 
 1. **Planted effects.** Keep the real households and the real (biased) targeting, simulate outcomes with known
-   per-household effects, and see if the learners recover them. The X-learner's top 30% captured 74% of the best
+   per-household effects, and see if the learners recover them. The X-learner's top 30% captured 75% of the best
    possible uplift; random targeting gets 20%.
 2. **Out of time.** Train on earlier waves, predict a later wave, and compare with what its matched pairs actually did.
-   The X-learner held up (a calibration slope of 0.93, p = 0.01). The other two didn't.
+   The X-learner held up (a calibration slope of 0.95, p = 0.01). The other two didn't.
 
 On those held-out waves, mailing every recipient lost about **$0.76 per booklet**. The 30% the model ranked highest
-responded with about $4.00 a week, roughly **$6.60 profit per booklet**. The heaviest-spender rule the retailer seems
+responded with about $3.26 a week, roughly **$5.10 profit per booklet**. The heaviest-spender rule the retailer seems
 to use made $0.38. That's the most exciting number in the project, and also the least certain: the interval on the
-gain still touches zero, so predictions get shrunk toward the average before they drive decisions.
+gain still touches zero, so predictions get shrunk toward the average before they drive decisions. It's touchy too.
+Before I made reruns reproducible, noise in the last digit of the inputs moved it anywhere from $2.82 to $6.98.
 
 The pattern behind it is the classic one. The model expects the most loyal heavy shoppers to show no response at all,
 because they'd buy anyway. The response is among regular shoppers who are starting to drift.
@@ -100,8 +101,9 @@ memo in the repo says this in one page.
 
 * **Ask how the treatment was assigned before anything else.** That one question changed the answer from $29 to $1.
 * **The bugs that matter don't crash.** A daylight saving shift put the first hour of 34 weeks in the wrong week; a
-  segment analysis found effects that were pure regression to the mean; two features drifted just because time passed.
-  Each one was caught by a check I wrote to break my own results, not by an error message.
+  segment analysis found effects that were pure regression to the mean; two features drifted just because time passed;
+  parallel sums in the warehouse made every rerun a tiny bit different, and LightGBM turned that into a $4 swing in
+  the headline profit. Each one was caught by a check I wrote to break my own results, not by an error message.
 * **Say how sure you are.** Most of the interesting numbers here have wide intervals. Saying so, and designing the
   test that would settle it, is more useful than a confident number that's wrong.
 

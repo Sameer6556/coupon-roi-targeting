@@ -14,7 +14,7 @@ should get the next booklet?** Built end to end on a year of real transactions f
 |---|---|
 | **Did the booklets work?** | Recipients spent **$29/week** more than non-recipients, but they already spent 1.4x to 2.6x more *before* any booklet arrived. Against look-alike households, the real effect is **+$0.97/week (+2.4%, 95% CI -2.1% to +7.0%)**. Roughly break-even. |
 | **Who is about to go quiet?** | A lapse model for regular shoppers, validated out of time: **ROC-AUC 0.83**. The 10% it flags contain **36%** of the households that go quiet (3.6x random). |
-| **Who should get the next booklet?** | An uplift model ranks households by how much a booklet would change their spend. On two waves it never saw, mailing everyone lost **$0.76 per booklet**; its top 30% would have made **$6.61 per booklet** (simulated margins). Promising, not yet significant. |
+| **Who should get the next booklet?** | An uplift model ranks households by how much a booklet would change their spend. On two waves it never saw, mailing everyone lost **$0.76 per booklet**; its top 30% would have made **$5.11 per booklet** (simulated margins). Promising, not yet significant. |
 | **What next?** | Mail by predicted response with a random holdout in every wave. Even with CUPED, an effect this small needs ~8,300 households per arm, so pool holdouts across waves. |
 
 ![Naive gap vs matched effect](reports/figures/causal_2_estimates.png)
@@ -67,7 +67,7 @@ by then, calibrates on the latest of those, and tests on the next.
 | logistic regression | 0.83 | 0.28 | 38% |
 | LightGBM + Platt calibration | 0.83 | 0.27 | 36% |
 
-Base rate: 7%. Calibration error (ECE) 0.014. LightGBM and logistic regression tie; the gain came from the target
+Base rate: 7%. Calibration error (ECE) 0.015. LightGBM and logistic regression tie; the gain came from the target
 definition and the features, not the algorithm (a "spend halves" target only reached AUC 0.70). A leakage test
 scrambles every row after the cutoff and checks the features don't move, and a PSI drift check caught two features
 that grew mechanically through the year.
@@ -80,19 +80,21 @@ Risk is not response. An uplift model estimates how much a booklet changes each 
 (T, X and DR on LightGBM), two checks before trusting any of them:
 
 1. **Planted effects:** real households, real biased targeting, simulated outcomes with known effects. The X-learner's
-   top 30% captured 74% of the best possible uplift (random: 20%), so it's the one used.
+   top 30% captured 75% of the best possible uplift (random: 20%), so it's the one used.
 2. **Out of time:** trained on earlier waves, scored on later ones, compared with what matched pairs actually did.
-   X-learner calibration slope 0.93 (p = 0.01); the T and DR learners didn't hold up. All three are reported.
+   X-learner calibration slope 0.95 (p = 0.01); the T and DR learners didn't hold up. All three are reported.
 
 | held-out waves, simulated margins | profit per booklet |
 |---|---|
 | mail every recipient | -$0.76 |
 | top 30% by heaviest spend (roughly the current rule) | +$0.38 |
-| **top 30% by predicted uplift** | **+$6.61** |
+| **top 30% by predicted uplift** | **+$5.11** |
 
 The interval on the uplift gain still touches zero, so predictions are shrunk toward the average effect by the
-out-of-time slope before they drive the mailing list. The model expects the most loyal heavy shoppers to show no
-response (they buy anyway); the response sits with regulars who are starting to drift.
+out-of-time slope before they drive the mailing list. It's touchy too: before I made reruns reproducible, noise in
+the last digit of the inputs moved that number anywhere from +$2.82 to +$6.98
+([decision log](docs/decisions.md#14-reruns-still-werent-reproducible)). The model expects the most loyal heavy
+shoppers to show no response (they buy anyway); the response sits with regulars who are starting to drift.
 
 ![Held-out profit](reports/figures/policy_2_holdout_profit.png)
 
@@ -101,9 +103,11 @@ response (they buy anyway); the response sits with regulars who are starting to 
 * **SQL layer.** DuckDB star schema built from 18 SQL files: window functions, NTILE, cohort retention, a dense
   household-week panel, and a time zone fix for daylight saving that a data check caught.
 * **Data checks** on every build (row counts, spend reconciles to the cent, panel density, redemption windows).
-* **49 tests,** including the leakage test, SQL guardrails, the matching code and the API.
+* **50 tests,** including the leakage test, SQL guardrails, the matching code and the API.
 * **CI** (GitHub Actions) lints, tests, runs the **whole pipeline on synthetic data with a planted effect** (the
   matched DiD recovers it; the naive comparison doesn't), renders every app page and builds the Docker image.
+* **Reproducible reruns.** Same results and models every time, on 2 cores or 4. It took more than LightGBM's
+  `deterministic=True` ([decision log](docs/decisions.md#14-reruns-still-werent-reproducible)).
 * **Streamlit app** with 5 pages: overview, campaign impact, household risk lookup with SHAP reasons, a targeting
   simulator (change margin, cost and budget), and ask-the-data.
 * **FastAPI** `/score` and `/households/{id}` endpoints with input validation, in a slim Docker image without the
@@ -126,11 +130,11 @@ uvicorn api.main:app          # the API, docs at localhost:8000/docs
 pytest                        # tests
 ```
 
-Python 3.11 or newer; the committed models were trained on 3.13, and the API image pins the exact training
-versions in `requirements-api.txt`. The app and API also run straight from the committed bundle in `artifacts/`
-without rerunning anything. Other
-commands: `make synthetic` (pipeline on generated data), `make notebooks`, `make mlflow`, `couponroi ask "question"`
-and `couponroi ask-eval` (need an LLM endpoint, see `src/couponroi/ask.py`).
+Python 3.12 or newer (the app's pinned NumPy needs it); the committed models and numbers come from 3.13, and the API
+image pins the exact training versions in `requirements-api.txt`. The app and API also run straight from the
+committed bundle in `artifacts/` without rerunning anything. Other commands: `make synthetic` (pipeline on generated
+data), `make notebooks`, `make mlflow`, `couponroi ask "question"` and `couponroi ask-eval` (need an LLM endpoint, see
+`src/couponroi/ask.py`).
 
 ## Repo layout
 

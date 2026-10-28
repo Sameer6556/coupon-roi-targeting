@@ -22,7 +22,9 @@ log = logging.getLogger(__name__)
 def connect(path: Path = config.WAREHOUSE_PATH, read_only: bool = True) -> duckdb.DuckDBPyConnection:
     if read_only and not Path(path).exists():
         raise FileNotFoundError(f"{path} not found. Run `couponroi build` first.")
-    return duckdb.connect(str(path), read_only=read_only)
+    # one thread on purpose: parallel sums of doubles land on different last bits every run,
+    # and LightGBM turns that into a different model (decision log 14)
+    return duckdb.connect(str(path), read_only=read_only, config={"threads": 1})
 
 
 def _sql_literal(path: Path) -> str:
@@ -47,7 +49,7 @@ def build(
     db_path.parent.mkdir(parents=True, exist_ok=True)
     if db_path.exists():
         db_path.unlink()
-    con = duckdb.connect(str(db_path))
+    con = connect(db_path, read_only=False)
     try:
         create_raw_views(con, raw_dir)
         timings = {}

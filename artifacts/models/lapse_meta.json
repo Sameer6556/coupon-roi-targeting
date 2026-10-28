@@ -18,7 +18,7 @@
     43,
     45
   ],
-  "best_iteration": 304,
+  "best_iteration": 532,
   "n_train": 18338,
   "features": [
     "recency_weeks",
